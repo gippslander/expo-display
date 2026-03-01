@@ -1,0 +1,16 @@
+{
+  "1": {
+    "name": "South Gippsland Screen",
+    "towns": ["Inverloch", "Wonthaggi", "Leongatha"],
+    "duration": 15,
+    "alertFreq": 5,
+    "orientation": "landscape"
+  },
+  "2": {
+    "name": "Latrobe Valley Kiosk",
+    "towns": ["Traralgon", "Morwell", "Moe"],
+    "duration": 10,
+    "alertFreq": 4,
+    "orientation": "portrait"
+  }
+}
