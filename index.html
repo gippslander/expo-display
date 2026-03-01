@@ -33,7 +33,7 @@
             background: rgba(0, 0, 0, 0.85);
             backdrop-filter: blur(5px);
             z-index: 9999;
-            display: flex; /* Hardcoded to always show on load */
+            display: flex; 
             align-items: center;
             justify-content: center;
         }
@@ -78,7 +78,6 @@
             width: 100px;
         }
 
-        /* Selected Towns Pills */
         .selected-towns-container {
             display: flex;
             flex-wrap: wrap;
@@ -116,31 +115,12 @@
             transition: opacity 0.2s;
         }
 
-        .town-pill button:hover {
-            opacity: 1;
-        }
+        .town-pill button:hover { opacity: 1; }
 
-        /* Search & Region Filter Row */
-        .filter-row {
-            display: flex;
-            gap: 15px;
-        }
-
-        .filter-row input, .filter-row select {
-            padding: 12px;
-            border: 1px solid #ccc;
-            border-radius: 8px;
-            font-size: 1rem;
-        }
-
-        .filter-row input {
-            flex: 2;
-        }
-
-        .filter-row select {
-            flex: 1;
-            background-color: white;
-        }
+        .filter-row { display: flex; gap: 15px; }
+        .filter-row input, .filter-row select { padding: 12px; border: 1px solid #ccc; border-radius: 8px; font-size: 1rem; }
+        .filter-row input { flex: 2; }
+        .filter-row select { flex: 1; background-color: white; }
 
         .town-list-container {
             border: 1px solid #ccc;
@@ -160,9 +140,7 @@
             transition: background 0.2s;
         }
 
-        .town-item:hover {
-            background: #eef7ed;
-        }
+        .town-item:hover { background: #eef7ed; }
 
         .add-icon {
             color: var(--primary-color);
@@ -185,6 +163,15 @@
         }
 
         .save-btn:hover { background: #3d8c40; }
+
+        .reset-link {
+            text-align: center;
+            margin-top: 15px;
+            color: #888;
+            font-size: 0.9rem;
+            cursor: pointer;
+            text-decoration: underline;
+        }
 
         /* --- Main App Styles --- */
         header {
@@ -316,6 +303,7 @@
             </div>
 
             <button class="save-btn" onclick="saveSettingsAndStart()">Save & Launch Presentation</button>
+            <div class="reset-link" onclick="factoryReset()">Reset all settings</div>
         </div>
     </div>
 
@@ -353,29 +341,42 @@
     </div>
 
     <script>
-        // --- ADMIN & STORAGE LOGIC ---
         const LOCATIONS_URL = 'https://cdn.jsdelivr.net/gh/gippslander/assets@main/locations.json';
         const BASE_API_URL = 'https://gippsland-jobs-proxy.vercel.app/api/jobs?towns=';
         
         let allTowns = [];
-        let selectedTowns = [];
+        let selectedTowns = ['Inverloch'];
         let displayDuration = 15000; 
         
         let jobs = [];
         let currentIndex = 0;
         let slideTimer;
+        let backgroundRefreshTimer;
+
+        // Emergency reset function
+        function factoryReset() {
+            localStorage.clear();
+            location.reload();
+        }
 
         async function initSettings() {
-            const savedDuration = localStorage.getItem('gipps_duration');
-            const savedTowns = localStorage.getItem('gipps_towns');
-            
-            if (savedDuration) {
-                document.getElementById('setting-duration').value = savedDuration;
-                displayDuration = parseInt(savedDuration) * 1000;
-            }
-            if (savedTowns) {
-                selectedTowns = JSON.parse(savedTowns);
-            } else {
+            try {
+                const savedDuration = localStorage.getItem('gipps_duration');
+                if (savedDuration) {
+                    document.getElementById('setting-duration').value = savedDuration;
+                    displayDuration = parseInt(savedDuration) * 1000;
+                }
+
+                const savedTowns = localStorage.getItem('gipps_towns');
+                if (savedTowns) {
+                    const parsedTowns = JSON.parse(savedTowns);
+                    if (Array.isArray(parsedTowns) && parsedTowns.length > 0) {
+                        selectedTowns = parsedTowns;
+                    }
+                }
+            } catch (e) {
+                console.warn("Corrupted local storage detected. Resetting to defaults.");
+                localStorage.removeItem('gipps_towns');
                 selectedTowns = ['Inverloch'];
             }
 
@@ -383,10 +384,10 @@
                 const res = await fetch(LOCATIONS_URL);
                 allTowns = await res.json();
                 
-                // Sort towns only once here
+                if (!Array.isArray(allTowns)) throw new Error("Location data invalid");
+
                 allTowns.sort((a, b) => a.label.localeCompare(b.label));
                 
-                // Extract unique regions, filter out blanks, and sort alphabetically
                 const regions = [...new Set(allTowns.map(t => t.region).filter(Boolean))].sort();
                 const regionSelect = document.getElementById('region-filter');
                 let regionHtml = '<option value="all">All Regions</option>';
@@ -395,7 +396,6 @@
                 });
                 regionSelect.innerHTML = regionHtml;
 
-                // Render UI immediately
                 renderTownsUI();
 
             } catch (error) {
@@ -409,7 +409,6 @@
             const searchQuery = document.getElementById('town-search').value.toLowerCase();
             const selectedRegion = document.getElementById('region-filter').value;
 
-            // 1. Render Pinned/Selected Towns
             if (selectedTowns.length === 0) {
                 selectedContainer.innerHTML = '<span style="color:#888; font-style:italic;">No towns selected</span>';
             } else {
@@ -425,16 +424,13 @@
                 selectedContainer.innerHTML = selectedHtml;
             }
 
-            // 2. Render Available Towns
             let availableHtml = '';
-            
             allTowns.forEach(town => {
                 if (selectedTowns.includes(town.label)) return;
                 if (selectedRegion !== 'all' && town.region !== selectedRegion) return;
                 if (searchQuery && !town.label.toLowerCase().includes(searchQuery)) return;
 
                 const regionLabel = town.region ? town.region : 'No Region';
-
                 availableHtml += `
                     <div class="town-item" onclick="toggleTown('${town.label}')">
                         <span class="add-icon">+</span>
@@ -450,7 +446,6 @@
                 availableHtml = '<div style="text-align:center; padding: 20px; color:#888;">No matching towns found</div>';
             }
             
-            // Update the DOM exactly once
             availableContainer.innerHTML = availableHtml;
         }
 
@@ -476,17 +471,24 @@
 
             document.getElementById('settings-overlay').style.display = 'none';
             
-            // Go fullscreen automatically when saving settings
             if (!document.fullscreenElement) {
-                document.documentElement.requestFullscreen().catch(e => console.log("Fullscreen requires user interaction first."));
+                document.documentElement.requestFullscreen().catch(e => console.log("Fullscreen optional."));
             }
 
-            fetchJobs();
+            // Initial Fetch
+            fetchJobs(false);
+
+            // Silent Background Fetch every 15 mins
+            clearInterval(backgroundRefreshTimer);
+            backgroundRefreshTimer = setInterval(() => {
+                fetchJobs(true);
+            }, 15 * 60 * 1000);
         }
 
-        // --- CORE JOB LOGIC (WITH CACHING) ---
-        async function fetchJobs() {
-            document.getElementById('job-display').innerHTML = '<div class="loader">Fetching jobs for selected areas...</div>';
+        async function fetchJobs(isSilent = false) {
+            if (!isSilent) {
+                document.getElementById('job-display').innerHTML = '<div class="loader">Fetching jobs for selected areas...</div>';
+            }
             
             const townQuery = selectedTowns.map(t => encodeURIComponent(t)).join(',');
             const fetchUrl = BASE_API_URL + townQuery;
@@ -495,23 +497,59 @@
                 const response = await fetch(fetchUrl);
                 const data = await response.json();
                 
-                jobs = data.filter(job => job.title && job.final_status === 'active');
-                
-                localStorage.setItem('gipps_cached_jobs', JSON.stringify(jobs));
+                if (!Array.isArray(data)) throw new Error("Invalid API Response");
+
+                processJobsForRotation(data);
                 setLiveStatus(true);
-                startPresentation();
-            } catch (error) {
-                console.warn("Internet disconnected! Falling back to cached data...");
-                const cachedData = localStorage.getItem('gipps_cached_jobs');
                 
-                if (cachedData) {
-                    jobs = JSON.parse(cachedData);
-                    setLiveStatus(false); 
+                if (!isSilent) {
                     startPresentation();
-                } else {
-                    document.getElementById('job-display').innerHTML = '<h2 class="job-title" style="text-align:center;">No internet connection and no cached jobs found.</h2>';
+                }
+            } catch (error) {
+                console.warn("Network error! Falling back to cache.");
+                try {
+                    const cachedData = localStorage.getItem('gipps_cached_jobs');
+                    if (cachedData) {
+                        jobs = JSON.parse(cachedData);
+                        setLiveStatus(false); 
+                        if (!isSilent) startPresentation();
+                    } else if (!isSilent) {
+                        document.getElementById('job-display').innerHTML = '<h2 class="job-title" style="text-align:center;">No internet connection and no cached jobs found.</h2>';
+                    }
+                } catch (e) {
+                    if (!isSilent) document.getElementById('job-display').innerHTML = '<h2 class="job-title" style="text-align:center;">Critical Error loading data.</h2>';
                 }
             }
+        }
+
+        function processJobsForRotation(data) {
+            const activeJobs = data.filter(job => job.title && job.final_status === 'active');
+            let weightedJobs = [];
+
+            activeJobs.forEach(job => {
+                weightedJobs.push(job); 
+                if (job.pin_to_top) {
+                    weightedJobs.push(job);
+                    weightedJobs.push(job); 
+                } else if (job.featured) {
+                    weightedJobs.push(job); 
+                }
+            });
+
+            for (let i = weightedJobs.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [weightedJobs[i], weightedJobs[j]] = [weightedJobs[j], weightedJobs[i]];
+            }
+
+            for (let i = 1; i < weightedJobs.length; i++) {
+                if (weightedJobs[i].id === weightedJobs[i-1].id) {
+                    let swapTarget = (i + 1) % weightedJobs.length;
+                    [weightedJobs[i], weightedJobs[swapTarget]] = [weightedJobs[swapTarget], weightedJobs[i]];
+                }
+            }
+
+            jobs = weightedJobs;
+            localStorage.setItem('gipps_cached_jobs', JSON.stringify(jobs));
         }
 
         function setLiveStatus(isLive) {
@@ -556,6 +594,9 @@
 
         function renderJob() {
             const container = document.getElementById('job-display');
+            
+            if (jobs.length === 0) return; 
+            
             const job = jobs[currentIndex];
 
             const employerName = job.employer && job.employer.name ? job.employer.name : 'Local Employer';
@@ -568,17 +609,24 @@
             const cleanDescription = stripHtml(job.description);
             const shortDesc = cleanDescription.length > 250 ? cleanDescription.substring(0, 250) + '...' : cleanDescription;
             
-            let statsHtml = '';
+            let dynamicBadgesHtml = '';
+            
+            if (job.pin_to_top) {
+                dynamicBadgesHtml += `<span class="badge" style="background-color: #fff8e1; border-color: #ffca28; color: #f57f17;">📌 Premium Role</span>`;
+            } else if (job.featured) {
+                dynamicBadgesHtml += `<span class="badge" style="background-color: #fffde7; border-color: #fff59d; color: #fbc02d;">🌟 Featured</span>`;
+            }
+
             if (job.statistics) {
                 const applies = job.statistics.applies_count || 0;
                 const views = job.statistics.views_count || 0;
 
                 if (applies > 0) {
-                    statsHtml = `<span class="badge" style="background-color: #fff3e0; border-color: #ffb74d; color: #e65100;">🔥 ${applies} applied</span>`;
+                    dynamicBadgesHtml += `<span class="badge" style="background-color: #fff3e0; border-color: #ffb74d; color: #e65100;">🔥 ${applies} applied</span>`;
                 } else if (views >= 10) {
-                    statsHtml = `<span class="badge" style="background-color: #e3f2fd; border-color: #64b5f6; color: #0d47a1;">👀 ${views} people viewing</span>`;
-                } else {
-                    statsHtml = `<span class="badge" style="background-color: #e8f5e9; border-color: #81c784; color: #1b5e20;">✨ Be the first to apply!</span>`;
+                    dynamicBadgesHtml += `<span class="badge" style="background-color: #e3f2fd; border-color: #64b5f6; color: #0d47a1;">👀 ${views} people viewing</span>`;
+                } else if (!job.pin_to_top && !job.featured) {
+                    dynamicBadgesHtml += `<span class="badge" style="background-color: #e8f5e9; border-color: #81c784; color: #1b5e20;">✨ Be the first to apply!</span>`;
                 }
             }
 
@@ -591,7 +639,7 @@
                     <h3 class="job-company">${employerLogo} ${employerName}</h3>
                     <div class="job-details">
                         <span class="badge">${locationSvg} ${location}</span>
-                        ${statsHtml}
+                        ${dynamicBadgesHtml}
                     </div>
                     <div class="job-description">"${shortDesc}"</div>
                 </div>
