@@ -33,7 +33,7 @@
             background: rgba(0, 0, 0, 0.85);
             backdrop-filter: blur(5px);
             z-index: 9999;
-            /* Now defaults to visible */
+            /* Starts visible so you can configure on page load */
             display: flex; 
             align-items: center;
             justify-content: center;
@@ -385,12 +385,17 @@
                 const res = await fetch(LOCATIONS_URL);
                 allTowns = await res.json();
                 
+                // OPTIMIZATION: Sort towns only once here
+                allTowns.sort((a, b) => a.label.localeCompare(b.label));
+                
                 // Extract unique regions, filter out blanks, and sort alphabetically
                 const regions = [...new Set(allTowns.map(t => t.region).filter(Boolean))].sort();
                 const regionSelect = document.getElementById('region-filter');
+                let regionHtml = '<option value="all">All Regions</option>';
                 regions.forEach(r => {
-                    regionSelect.innerHTML += `<option value="${r}">${r}</option>`;
+                    regionHtml += `<option value="${r}">${r}</option>`;
                 });
+                regionSelect.innerHTML = regionHtml;
 
                 // Always render UI and show settings on load
                 renderTownsUI();
@@ -406,33 +411,34 @@
             const searchQuery = document.getElementById('town-search').value.toLowerCase();
             const selectedRegion = document.getElementById('region-filter').value;
 
+            // OPTIMIZATION: Build strings first, then update DOM once
             // 1. Render Pinned/Selected Towns
-            selectedContainer.innerHTML = '';
             if (selectedTowns.length === 0) {
                 selectedContainer.innerHTML = '<span style="color:#888; font-style:italic;">No towns selected</span>';
             } else {
+                let selectedHtml = '';
                 selectedTowns.forEach(town => {
-                    selectedContainer.innerHTML += `
+                    selectedHtml += `
                         <div class="town-pill">
                             ${town} 
                             <button onclick="toggleTown('${town}')">✕</button>
                         </div>
                     `;
                 });
+                selectedContainer.innerHTML = selectedHtml;
             }
 
-            // 2. Render Available Towns (applying search & region filters)
-            availableContainer.innerHTML = '';
-            const sortedTowns = [...allTowns].sort((a, b) => a.label.localeCompare(b.label));
-
-            sortedTowns.forEach(town => {
+            // 2. Render Available Towns
+            let availableHtml = '';
+            
+            allTowns.forEach(town => {
                 if (selectedTowns.includes(town.label)) return;
                 if (selectedRegion !== 'all' && town.region !== selectedRegion) return;
                 if (searchQuery && !town.label.toLowerCase().includes(searchQuery)) return;
 
                 const regionLabel = town.region ? town.region : 'No Region';
 
-                availableContainer.innerHTML += `
+                availableHtml += `
                     <div class="town-item" onclick="toggleTown('${town.label}')">
                         <span class="add-icon">+</span>
                         <div>
@@ -442,6 +448,13 @@
                     </div>
                 `;
             });
+
+            if (availableHtml === '') {
+                availableHtml = '<div style="text-align:center; padding: 20px; color:#888;">No matching towns found</div>';
+            }
+            
+            // Update the DOM exactly once
+            availableContainer.innerHTML = availableHtml;
         }
 
         function toggleTown(townLabel) {
@@ -619,7 +632,6 @@
         document.addEventListener('keydown', (e) => {
             const isSettingsOpen = document.getElementById('settings-overlay').style.display === 'flex';
 
-            // Only allow controls if settings are closed and jobs exist
             if (!isSettingsOpen && jobs.length > 0) {
                 if (e.key === 'ArrowRight') {
                     currentIndex = (currentIndex + 1) % jobs.length;
