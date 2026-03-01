@@ -45,7 +45,7 @@
             display: flex;
             flex-direction: column;
             box-sizing: border-box;
-            cursor: none; /* Hides the mouse pointer for true kiosk mode */
+            cursor: none; 
         }
         
         body {
@@ -124,20 +124,20 @@
 
         .hook-content { z-index: 2; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; }
         
-        .hook-kicker { font-size: clamp(1.5rem, 3vh, 2.2rem); font-weight: 800; letter-spacing: 2px; color: white; opacity: 0.9; margin-bottom: 10px; animation: popIn 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) backwards; animation-delay: 0.1s;}
-        .hook-title { font-size: clamp(3.5rem, 7vh, 5.5rem); font-weight: 900; margin-bottom: 15px; line-height: 1.1; text-shadow: 2px 4px 10px rgba(0,0,0,0.3); animation: popIn 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) backwards; animation-delay: 0.3s; }
-        .hook-sub { font-size: clamp(1.4rem, 2.8vh, 1.8rem); margin-bottom: 30px; opacity: 0.95; font-weight: 500; max-width: 900px; animation: popIn 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) backwards; animation-delay: 0.5s; }
+        .hook-kicker { font-size: clamp(1.2rem, 2.5vh, 1.8rem); font-weight: 800; letter-spacing: 2px; color: white; opacity: 0.9; margin-bottom: 5px; animation: popIn 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) backwards; animation-delay: 0.1s;}
+        .hook-title { font-size: clamp(2.5rem, 5.5vh, 4.5rem); font-weight: 900; margin-bottom: 10px; line-height: 1.1; text-shadow: 2px 4px 10px rgba(0,0,0,0.3); animation: popIn 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) backwards; animation-delay: 0.3s; }
+        .hook-sub { font-size: clamp(1.1rem, 2.2vh, 1.5rem); margin-bottom: 20px; opacity: 0.95; font-weight: 500; max-width: 900px; animation: popIn 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) backwards; animation-delay: 0.5s; }
         
         .highlight-town { color: #ffca28; display: inline-block; transition: opacity 0.3s ease, transform 0.3s ease; }
 
         .hook-qr-box { 
-            background: white; padding: 35px 40px; border-radius: 25px; box-shadow: 0 20px 50px rgba(0,0,0,0.4);
-            display: flex; flex-direction: column; align-items: center; gap: 10px;
+            background: white; padding: 20px 35px 15px 35px; border-radius: 25px; box-shadow: 0 20px 50px rgba(0,0,0,0.4);
+            display: flex; flex-direction: column; align-items: center; gap: 8px;
             animation: popIn 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) backwards; animation-delay: 0.7s;
         }
-        .hook-qr-box img { width: 100%; max-width: 250px; height: auto; }
-        .hook-qr-text { color: var(--text-main); font-weight: 800; font-size: 1.5rem; display: flex; align-items: center; gap: 10px; margin-bottom: 5px;}
-        .hook-qr-box .qr-fallback-text { font-size: 1.1rem; margin-top: 5px; color: var(--text-muted); }
+        .hook-qr-box img { width: 100%; max-width: 200px; height: auto; margin-bottom: -5px; }
+        .hook-qr-text { color: var(--text-main); font-weight: 800; font-size: 1.3rem; display: flex; align-items: center; gap: 10px; margin-bottom: 0px;}
+        .hook-qr-box .qr-fallback-text { font-size: 1.05rem; margin-top: 5px; color: var(--text-muted); }
 
         @keyframes popIn { 0% { transform: scale(0.8) translateY(30px); opacity: 0; } 100% { transform: scale(1) translateY(0); opacity: 1; } }
 
@@ -270,11 +270,9 @@
         let jobDisplayCounter = 0; 
         let currentTownIndex = 0;
 
-        // --- View Counter Variables ---
         let currentViewCount = 0;
         let viewTickTimer;
 
-        // --- Live Clock Setup ---
         function startClock() {
             const clockEl = document.getElementById('live-clock');
             function tick() {
@@ -283,7 +281,7 @@
                 let minutes = now.getMinutes();
                 const ampm = hours >= 12 ? 'PM' : 'AM';
                 hours = hours % 12;
-                hours = hours ? hours : 12; // Handle midnight/noon
+                hours = hours ? hours : 12; 
                 minutes = minutes < 10 ? '0' + minutes : minutes;
                 clockEl.innerText = hours + ':' + minutes + ' ' + ampm;
             }
@@ -309,7 +307,6 @@
                 const configs = await configRes.json();
 
                 if (!configs[configId]) {
-                    console.warn(`Config ID "${configId}" not found. Falling back to default "0".`);
                     configId = '0';
                 }
 
@@ -387,7 +384,6 @@
                         }
                     }
                 } catch (e) {
-                    // Fail silently
                 }
             }, 30 * 60 * 1000);
         }
@@ -593,7 +589,6 @@
             setTimeout(() => { progressBar.style.transition = `width ${displayDuration}ms linear`; progressBar.style.width = '100%'; }, 50);
         }
 
-        // Initialize clock and settings
         startClock();
         initSettings();
     </script>
