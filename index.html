@@ -1,0 +1,703 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gippslander Live Jobs Expo</title>
+    <style>
+        :root {
+            --primary-color: #4CAF50;
+            --bg-color: #E1F0F7;      
+            --header-bg: #FFFFFF;     
+            --text-main: #2b2b2b;
+            --text-muted: #555555;
+            --live-color: #ff3b30;    
+            --offline-color: #ffca28;
+        }
+
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* --- Settings Panel Styles --- */
+        #settings-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(5px);
+            z-index: 9999;
+            display: flex; /* Starts hidden via inline style in HTML */
+            align-items: center;
+            justify-content: center;
+        }
+
+        .settings-modal {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            width: 600px; /* Made slightly wider for the new layout */
+            max-height: 90vh;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+        }
+
+        .settings-modal h2 {
+            margin-top: 0;
+            color: var(--primary-color);
+            font-size: 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .settings-hint {
+            font-size: 0.9rem;
+            color: #888;
+            font-weight: normal;
+        }
+
+        .settings-group {
+            margin-bottom: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .settings-group label {
+            font-weight: bold;
+            color: var(--text-main);
+        }
+
+        .settings-group input[type="number"] {
+            padding: 12px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            font-size: 1rem;
+            width: 100px;
+        }
+
+        /* Selected Towns Pills */
+        .selected-towns-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 15px;
+            padding: 10px;
+            background: #f4f6f9;
+            border-radius: 8px;
+            min-height: 44px;
+        }
+
+        .town-pill {
+            background: var(--primary-color);
+            color: white;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 500;
+        }
+
+        .town-pill button {
+            background: none;
+            border: none;
+            color: white;
+            cursor: pointer;
+            font-weight: bold;
+            padding: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0.8;
+            transition: opacity 0.2s;
+        }
+
+        .town-pill button:hover {
+            opacity: 1;
+        }
+
+        /* Search & Region Filter Row */
+        .filter-row {
+            display: flex;
+            gap: 15px;
+        }
+
+        .filter-row input, .filter-row select {
+            padding: 12px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            font-size: 1rem;
+        }
+
+        .filter-row input {
+            flex: 2;
+        }
+
+        .filter-row select {
+            flex: 1;
+            background-color: white;
+        }
+
+        .town-list-container {
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            height: 250px;
+            overflow-y: auto;
+            background: #fff;
+        }
+
+        .town-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 15px;
+            border-bottom: 1px solid #eee;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .town-item:hover {
+            background: #eef7ed;
+        }
+
+        .add-icon {
+            color: var(--primary-color);
+            font-weight: bold;
+            font-size: 1.2rem;
+            width: 20px;
+        }
+
+        .save-btn {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 15px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: 0.2s;
+        }
+
+        .save-btn:hover { background: #3d8c40; }
+
+        /* --- Main App Styles --- */
+        header {
+            background-color: var(--header-bg);
+            padding: 15px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            z-index: 10;
+        }
+
+        .header-logo { height: 60px; }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .live-indicator {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 800;
+            font-size: 1.2rem;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+        }
+
+        .status-live { color: var(--live-color); }
+        .status-offline { color: var(--offline-color); }
+
+        .live-dot {
+            width: 12px; height: 12px;
+            border-radius: 50%;
+            background-color: var(--live-color);
+            animation: pulse-live 1.5s infinite;
+        }
+
+        .offline-dot {
+            width: 12px; height: 12px;
+            border-radius: 50%;
+            background-color: var(--offline-color);
+        }
+
+        @keyframes pulse-live {
+            0% { box-shadow: 0 0 0 0 rgba(255, 59, 48, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(255, 59, 48, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(255, 59, 48, 0); }
+        }
+
+        .content-wrapper { display: flex; flex: 1; padding: 40px; gap: 40px; min-height: 0; }
+
+        .job-container {
+            flex: 2; background: white; border-radius: 20px; box-shadow: 0 10px 40px rgba(0,0,0,0.08);
+            padding: 50px; display: flex; flex-direction: column; justify-content: center; position: relative; overflow: hidden;
+        }
+
+        .job-card {
+            opacity: 0; transition: opacity 0.6s ease-in-out, transform 0.6s ease-in-out;
+            transform: translateY(30px); width: 100%;
+        }
+        .job-card.active { opacity: 1; transform: translateY(0); }
+
+        .job-category { font-size: 1.5rem; color: var(--primary-color); text-transform: uppercase; font-weight: 800; margin-bottom: 15px; letter-spacing: 2px;}
+        .job-title { font-size: 3.5rem; color: var(--text-main); margin: 0 0 20px 0; font-weight: 900; line-height: 1.2; }
+        .job-company { font-size: 2.2rem; color: var(--text-muted); margin: 0 0 25px 0; display: flex; align-items: center; gap: 15px; }
+        .company-logo { max-height: 50px; border-radius: 8px; }
+        .job-details { font-size: 1.6rem; color: var(--text-muted); display: flex; flex-wrap: wrap; gap: 15px; margin-bottom: 25px; }
+        
+        .badge {
+            background-color: #f8f9fa; padding: 12px 24px; border-radius: 12px; border: 1px solid #e0e0e0; 
+            display: flex; align-items: center; gap: 10px; font-weight: 600; color: #444;
+        }
+        .badge svg { width: 22px; height: 22px; stroke: var(--primary-color); }
+
+        .job-description {
+            font-size: 1.6rem; color: #666; line-height: 1.5; border-top: 2px dashed #eee; padding-top: 25px;
+            display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;
+        }
+
+        .sidebar {
+            flex: 1; background: var(--primary-color); border-radius: 20px; padding: 40px 30px;
+            display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; color: white;
+        }
+        .sidebar h2 { font-size: 3.2rem; margin-bottom: 10px; font-weight: 900; line-height: 1.1; }
+        .sidebar p { font-size: 1.6rem; margin-bottom: 20px; opacity: 0.95; font-weight: 500; }
+        
+        .bounce-arrow { width: 50px; height: 50px; margin-bottom: 25px; color: white; animation: bounce 2s infinite; }
+        @keyframes bounce { 0%, 20%, 50%, 80%, 100% { transform: translateY(0); } 40% { transform: translateY(-20px); } 60% { transform: translateY(-10px); } }
+
+        .qr-wrapper { background: white; padding: 25px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
+        .qr-wrapper img { width: 300px; height: 300px; display: block; transition: opacity 0.3s; }
+
+        .progress-bar-container { width: 100%; height: 8px; background-color: #f0f0f0; position: absolute; bottom: 0; left: 0; }
+        .progress-bar { height: 100%; background-color: var(--primary-color); width: 0%; }
+        .loader { font-size: 2rem; color: var(--primary-color); text-align: center; width: 100%; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+    <div id="settings-overlay" style="display: none;">
+        <div class="settings-modal">
+            <h2>
+                ⚙️ Expo Setup
+                <span class="settings-hint">Press F2 or S to close</span>
+            </h2>
+            
+            <div class="settings-group">
+                <label>Slide Duration (seconds):</label>
+                <input type="number" id="setting-duration" value="15" min="5" max="60">
+            </div>
+
+            <div class="settings-group">
+                <label>Selected Towns:</label>
+                <div id="selected-towns" class="selected-towns-container">
+                    </div>
+            </div>
+
+            <div class="settings-group">
+                <label>Add Towns:</label>
+                <div class="filter-row">
+                    <input type="text" id="town-search" placeholder="Search towns..." onkeyup="renderTownsUI()">
+                    <select id="region-filter" onchange="renderTownsUI()">
+                        <option value="all">All Regions</option>
+                        </select>
+                </div>
+                <div id="town-list" class="town-list-container">
+                    <div style="text-align:center; padding: 20px;">Loading regions...</div>
+                </div>
+            </div>
+
+            <button class="save-btn" onclick="saveSettingsAndStart()">Save & Launch Presentation</button>
+        </div>
+    </div>
+
+    <header>
+        <img src="https://d3535lqr6sqxto.cloudfront.net/logos/rEkuQybTnVw95OUPNTLLVxtGB7t4BbAVgbRJTndj.png" alt="Gippslander Logo" class="header-logo">
+        <div class="header-right">
+            <div class="live-indicator status-live" id="status-badge">
+                <span class="live-dot" id="status-dot"></span>
+                <span id="status-text">Live</span>
+            </div>
+            </div>
+    </header>
+
+    <div class="content-wrapper">
+        <div class="job-container">
+            <div id="job-display">
+                <div class="loader">Press 'F2' or 'S' to configure your display...</div>
+            </div>
+            <div class="progress-bar-container">
+                <div class="progress-bar" id="progress"></div>
+            </div>
+        </div>
+
+        <div class="sidebar">
+            <h2>Pull out your camera</h2>
+            <p>Scan to apply instantly!</p>
+            <svg class="bounce-arrow" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="12" y1="5" x2="12" y2="19"></line>
+                <polyline points="19 12 12 19 5 12"></polyline>
+            </svg>
+            <div class="qr-wrapper">
+                <img id="dynamic-qr" src="" alt="Job QR Code" style="opacity: 0;">
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- ADMIN & STORAGE LOGIC ---
+        const LOCATIONS_URL = 'https://cdn.jsdelivr.net/gh/gippslander/assets@main/locations.json';
+        const BASE_API_URL = 'https://gippsland-jobs-proxy.vercel.app/api/jobs?towns=';
+        
+        let allTowns = [];
+        let selectedTowns = [];
+        let displayDuration = 15000; 
+        
+        let jobs = [];
+        let currentIndex = 0;
+        let slideTimer;
+        let isPaused = false;
+
+        async function initSettings() {
+            const savedDuration = localStorage.getItem('gipps_duration');
+            const savedTowns = localStorage.getItem('gipps_towns');
+            
+            if (savedDuration) {
+                document.getElementById('setting-duration').value = savedDuration;
+                displayDuration = parseInt(savedDuration) * 1000;
+            }
+            if (savedTowns) {
+                selectedTowns = JSON.parse(savedTowns);
+            } else {
+                selectedTowns = ['Inverloch'];
+            }
+
+            try {
+                const res = await fetch(LOCATIONS_URL);
+                allTowns = await res.json();
+                
+                // Extract unique regions, filter out blanks, and sort alphabetically
+                const regions = [...new Set(allTowns.map(t => t.region).filter(Boolean))].sort();
+                const regionSelect = document.getElementById('region-filter');
+                regions.forEach(r => {
+                    regionSelect.innerHTML += `<option value="${r}">${r}</option>`;
+                });
+
+                // Auto-start if we have saved data, otherwise open settings
+                if (savedTowns && selectedTowns.length > 0) {
+                    fetchJobs();
+                } else {
+                    openSettings();
+                }
+
+                renderTownsUI();
+
+            } catch (error) {
+                document.getElementById('town-list').innerHTML = `<div style="color:red; padding:10px;">Failed to load towns. Check internet connection.</div>`;
+                // If offline but we have cached jobs, just run them
+                if (localStorage.getItem('gipps_cached_jobs')) fetchJobs();
+            }
+        }
+
+        function renderTownsUI() {
+            const selectedContainer = document.getElementById('selected-towns');
+            const availableContainer = document.getElementById('town-list');
+            const searchQuery = document.getElementById('town-search').value.toLowerCase();
+            const selectedRegion = document.getElementById('region-filter').value;
+
+            // 1. Render Pinned/Selected Towns
+            selectedContainer.innerHTML = '';
+            if (selectedTowns.length === 0) {
+                selectedContainer.innerHTML = '<span style="color:#888; font-style:italic;">No towns selected</span>';
+            } else {
+                selectedTowns.forEach(town => {
+                    selectedContainer.innerHTML += `
+                        <div class="town-pill">
+                            ${town} 
+                            <button onclick="toggleTown('${town}')">✕</button>
+                        </div>
+                    `;
+                });
+            }
+
+            // 2. Render Available Towns (applying search & region filters)
+            availableContainer.innerHTML = '';
+            // Sort remaining towns alphabetically
+            const sortedTowns = [...allTowns].sort((a, b) => a.label.localeCompare(b.label));
+
+            sortedTowns.forEach(town => {
+                // Hide if already selected
+                if (selectedTowns.includes(town.label)) return;
+                
+                // Filter by region
+                if (selectedRegion !== 'all' && town.region !== selectedRegion) return;
+                
+                // Filter by search text
+                if (searchQuery && !town.label.toLowerCase().includes(searchQuery)) return;
+
+                const regionLabel = town.region ? town.region : 'No Region';
+
+                availableContainer.innerHTML += `
+                    <div class="town-item" onclick="toggleTown('${town.label}')">
+                        <span class="add-icon">+</span>
+                        <div>
+                            <div style="font-weight:bold;">${town.label}</div>
+                            <div style="color:#888; font-size:0.85em;">${regionLabel}</div>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        function toggleTown(townLabel) {
+            if (selectedTowns.includes(townLabel)) {
+                selectedTowns = selectedTowns.filter(t => t !== townLabel);
+            } else {
+                selectedTowns.push(townLabel);
+            }
+            renderTownsUI(); // Re-render the UI instantly
+        }
+
+        function saveSettingsAndStart() {
+            const sec = document.getElementById('setting-duration').value;
+            displayDuration = parseInt(sec) * 1000;
+            localStorage.setItem('gipps_duration', sec);
+            localStorage.setItem('gipps_towns', JSON.stringify(selectedTowns));
+
+            document.getElementById('settings-overlay').style.display = 'none';
+            
+            // Go fullscreen automatically when saving settings
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen().catch(e => console.log("Fullscreen requires user interaction first."));
+            }
+
+            fetchJobs();
+        }
+
+        function openSettings() {
+            clearInterval(slideTimer); // Pause the carousel while editing
+            renderTownsUI(); // Make sure UI is up to date
+            document.getElementById('settings-overlay').style.display = 'flex';
+        }
+
+        // --- CORE JOB LOGIC (WITH CACHING) ---
+        async function fetchJobs() {
+            if (selectedTowns.length === 0) {
+                document.getElementById('job-display').innerHTML = '<h2 class="job-title" style="text-align:center;">Press F2 to select towns to monitor.</h2>';
+                return;
+            }
+
+            document.getElementById('job-display').innerHTML = '<div class="loader">Fetching jobs for selected areas...</div>';
+            
+            const townQuery = selectedTowns.map(t => encodeURIComponent(t)).join(',');
+            const fetchUrl = BASE_API_URL + townQuery;
+
+            try {
+                const response = await fetch(fetchUrl);
+                const data = await response.json();
+                
+                jobs = data.filter(job => job.title && job.final_status === 'active');
+                
+                localStorage.setItem('gipps_cached_jobs', JSON.stringify(jobs));
+                setLiveStatus(true);
+                startPresentation();
+            } catch (error) {
+                console.warn("Internet disconnected! Falling back to cached data...");
+                const cachedData = localStorage.getItem('gipps_cached_jobs');
+                
+                if (cachedData) {
+                    jobs = JSON.parse(cachedData);
+                    setLiveStatus(false); 
+                    startPresentation();
+                } else {
+                    document.getElementById('job-display').innerHTML = '<h2 class="job-title" style="text-align:center;">No internet connection and no cached jobs found.</h2>';
+                }
+            }
+        }
+
+        function setLiveStatus(isLive) {
+            const badge = document.getElementById('status-badge');
+            const dot = document.getElementById('status-dot');
+            const text = document.getElementById('status-text');
+
+            if (isLive) {
+                badge.className = 'live-indicator status-live';
+                dot.className = 'live-dot';
+                text.innerText = 'Live';
+            } else {
+                badge.className = 'live-indicator status-offline';
+                dot.className = 'offline-dot';
+                text.innerText = 'Offline (Cached)';
+            }
+        }
+
+        function startPresentation() {
+            if(jobs.length > 0) {
+                currentIndex = 0;
+                renderJob();
+                startTimer();
+            } else {
+                document.getElementById('job-display').innerHTML = '<h2 class="job-title" style="text-align:center;">No active jobs found in the selected towns.</h2>';
+            }
+        }
+
+        function startTimer() {
+            clearInterval(slideTimer);
+            if (!isPaused) {
+                slideTimer = setInterval(() => {
+                    currentIndex = (currentIndex + 1) % jobs.length;
+                    renderJob();
+                }, displayDuration);
+            }
+        }
+
+        function stripHtml(html) {
+            const tempDiv = document.createElement("div");
+            tempDiv.innerHTML = html || '';
+            return tempDiv.textContent || tempDiv.innerText || "";
+        }
+
+        function renderJob() {
+            const container = document.getElementById('job-display');
+            const job = jobs[currentIndex];
+
+            const employerName = job.employer && job.employer.name ? job.employer.name : 'Local Employer';
+            const employerLogo = job.employer && job.employer.logo ? `<img src="${job.employer.logo}" class="company-logo" alt="logo">` : '';
+            const categoryName = job.category && job.category.name ? job.category.name : 'General';
+            
+            let location = job.location || 'Gippsland Region';
+            location = location.replace(/,\s*Victoria,\s*Australia/i, '');
+            
+            const cleanDescription = stripHtml(job.description);
+            const shortDesc = cleanDescription.length > 250 ? cleanDescription.substring(0, 250) + '...' : cleanDescription;
+            
+            let statsHtml = '';
+            if (job.statistics) {
+                const applies = job.statistics.applies_count || 0;
+                const views = job.statistics.views_count || 0;
+
+                if (applies > 0) {
+                    statsHtml = `<span class="badge" style="background-color: #fff3e0; border-color: #ffb74d; color: #e65100;">🔥 ${applies} applied</span>`;
+                } else if (views >= 10) {
+                    statsHtml = `<span class="badge" style="background-color: #e3f2fd; border-color: #64b5f6; color: #0d47a1;">👀 ${views} people viewing</span>`;
+                } else {
+                    statsHtml = `<span class="badge" style="background-color: #e8f5e9; border-color: #81c784; color: #1b5e20;">✨ Be the first to apply!</span>`;
+                }
+            }
+
+            const locationSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>`;
+
+            container.innerHTML = `
+                <div class="job-card" id="current-job">
+                    <div class="job-category">${categoryName}</div>
+                    <h2 class="job-title">${job.title}</h2>
+                    <h3 class="job-company">${employerLogo} ${employerName}</h3>
+                    <div class="job-details">
+                        <span class="badge">${locationSvg} ${location}</span>
+                        ${statsHtml}
+                    </div>
+                    <div class="job-description">"${shortDesc}"</div>
+                </div>
+            `;
+
+            setTimeout(() => {
+                const jobCard = document.getElementById('current-job');
+                if(jobCard) jobCard.classList.add('active');
+            }, 50);
+
+            const qrImg = document.getElementById('dynamic-qr');
+            qrImg.style.opacity = '0'; 
+            
+            setTimeout(() => {
+                const jobUrl = encodeURIComponent(job.job_details_url);
+                qrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${jobUrl}&margin=10&color=2b2b2b`;
+                qrImg.onload = () => { qrImg.style.opacity = '1'; };
+            }, 300);
+
+            const progressBar = document.getElementById('progress');
+            progressBar.style.transition = 'none';
+            progressBar.style.width = isPaused ? '100%' : '0%';
+            
+            if (!isPaused) {
+                setTimeout(() => {
+                    progressBar.style.transition = `width ${displayDuration}ms linear`;
+                    progressBar.style.width = '100%';
+                }, 50);
+            }
+        }
+
+        // --- KEYBOARD & HOTKEY CONTROLS ---
+        document.addEventListener('keydown', (e) => {
+            const overlay = document.getElementById('settings-overlay');
+            const isSettingsOpen = overlay.style.display === 'flex';
+
+            // 1. Hotkey to open/close Settings (F2 or 'S')
+            if (e.key === 'F2' || e.key.toLowerCase() === 's') {
+                // Ignore if user is currently typing in the search box
+                if (document.activeElement.id === 'town-search' && e.key.toLowerCase() === 's') return;
+                
+                e.preventDefault();
+                if (isSettingsOpen) {
+                    overlay.style.display = 'none';
+                    if (jobs.length > 0 && !isPaused) startTimer();
+                } else {
+                    openSettings();
+                }
+                return;
+            }
+
+            // 2. Carousel Controls (Only work if settings are closed)
+            if (!isSettingsOpen && jobs.length > 0) {
+                if (e.key === 'ArrowRight') {
+                    currentIndex = (currentIndex + 1) % jobs.length;
+                    renderJob();
+                    startTimer();
+                } else if (e.key === 'ArrowLeft') {
+                    currentIndex = (currentIndex - 1 + jobs.length) % jobs.length;
+                    renderJob();
+                    startTimer();
+                } else if (e.code === 'Space') {
+                    e.preventDefault(); 
+                    isPaused = !isPaused;
+                    
+                    const textEl = document.getElementById('status-text');
+                    const dotEl = document.getElementById('status-dot');
+                    
+                    if (isPaused) {
+                        clearInterval(slideTimer);
+                        document.getElementById('progress').style.transition = 'none';
+                        textEl.innerText = 'PAUSED';
+                        dotEl.style.animation = 'none';
+                        dotEl.style.backgroundColor = '#999';
+                    } else {
+                        startTimer();
+                        renderJob(); 
+                        textEl.innerText = 'Live';
+                        dotEl.style.animation = 'pulse-live 1.5s infinite';
+                        dotEl.style.backgroundColor = 'var(--live-color)';
+                    }
+                }
+            }
+        });
+
+        initSettings();
+    </script>
+</body>
+</html>
