@@ -222,9 +222,15 @@
         let currentTownIndex = 0;
 
         async function initSettings() {
-            // Get URL parameter or default to '0'
+            // Get URL parameter case-insensitively, default to '0'
             const urlParams = new URLSearchParams(window.location.search);
-            let configId = urlParams.get('id') || '0'; 
+            let configId = '0';
+            for (const [key, value] of urlParams) {
+                if (key.toLowerCase() === 'id') {
+                    configId = value;
+                }
+            }
+            
             const CACHE_KEY = `gipps_config_${configId}`;
 
             try {
