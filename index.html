@@ -33,8 +33,7 @@
             background: rgba(0, 0, 0, 0.85);
             backdrop-filter: blur(5px);
             z-index: 9999;
-            /* Starts visible so you can configure on page load */
-            display: flex; 
+            display: flex; /* Hardcoded to always show on load */
             align-items: center;
             justify-content: center;
         }
@@ -365,7 +364,6 @@
         let jobs = [];
         let currentIndex = 0;
         let slideTimer;
-        let isPaused = false;
 
         async function initSettings() {
             const savedDuration = localStorage.getItem('gipps_duration');
@@ -385,7 +383,7 @@
                 const res = await fetch(LOCATIONS_URL);
                 allTowns = await res.json();
                 
-                // OPTIMIZATION: Sort towns only once here
+                // Sort towns only once here
                 allTowns.sort((a, b) => a.label.localeCompare(b.label));
                 
                 // Extract unique regions, filter out blanks, and sort alphabetically
@@ -397,7 +395,7 @@
                 });
                 regionSelect.innerHTML = regionHtml;
 
-                // Always render UI and show settings on load
+                // Render UI immediately
                 renderTownsUI();
 
             } catch (error) {
@@ -411,7 +409,6 @@
             const searchQuery = document.getElementById('town-search').value.toLowerCase();
             const selectedRegion = document.getElementById('region-filter').value;
 
-            // OPTIMIZATION: Build strings first, then update DOM once
             // 1. Render Pinned/Selected Towns
             if (selectedTowns.length === 0) {
                 selectedContainer.innerHTML = '<span style="color:#888; font-style:italic;">No towns selected</span>';
@@ -467,6 +464,11 @@
         }
 
         function saveSettingsAndStart() {
+            if (selectedTowns.length === 0) {
+                alert("Please select at least one town to monitor.");
+                return;
+            }
+
             const sec = document.getElementById('setting-duration').value;
             displayDuration = parseInt(sec) * 1000;
             localStorage.setItem('gipps_duration', sec);
@@ -484,11 +486,6 @@
 
         // --- CORE JOB LOGIC (WITH CACHING) ---
         async function fetchJobs() {
-            if (selectedTowns.length === 0) {
-                document.getElementById('job-display').innerHTML = '<h2 class="job-title" style="text-align:center;">Refresh the page and select towns to monitor.</h2>';
-                return;
-            }
-
             document.getElementById('job-display').innerHTML = '<div class="loader">Fetching jobs for selected areas...</div>';
             
             const townQuery = selectedTowns.map(t => encodeURIComponent(t)).join(',');
@@ -545,12 +542,10 @@
 
         function startTimer() {
             clearInterval(slideTimer);
-            if (!isPaused) {
-                slideTimer = setInterval(() => {
-                    currentIndex = (currentIndex + 1) % jobs.length;
-                    renderJob();
-                }, displayDuration);
-            }
+            slideTimer = setInterval(() => {
+                currentIndex = (currentIndex + 1) % jobs.length;
+                renderJob();
+            }, displayDuration);
         }
 
         function stripHtml(html) {
@@ -618,52 +613,13 @@
 
             const progressBar = document.getElementById('progress');
             progressBar.style.transition = 'none';
-            progressBar.style.width = isPaused ? '100%' : '0%';
+            progressBar.style.width = '0%';
             
-            if (!isPaused) {
-                setTimeout(() => {
-                    progressBar.style.transition = `width ${displayDuration}ms linear`;
-                    progressBar.style.width = '100%';
-                }, 50);
-            }
+            setTimeout(() => {
+                progressBar.style.transition = `width ${displayDuration}ms linear`;
+                progressBar.style.width = '100%';
+            }, 50);
         }
-
-        // --- KEYBOARD CONTROLS (Only for Carousel) ---
-        document.addEventListener('keydown', (e) => {
-            const isSettingsOpen = document.getElementById('settings-overlay').style.display === 'flex';
-
-            if (!isSettingsOpen && jobs.length > 0) {
-                if (e.key === 'ArrowRight') {
-                    currentIndex = (currentIndex + 1) % jobs.length;
-                    renderJob();
-                    startTimer();
-                } else if (e.key === 'ArrowLeft') {
-                    currentIndex = (currentIndex - 1 + jobs.length) % jobs.length;
-                    renderJob();
-                    startTimer();
-                } else if (e.code === 'Space') {
-                    e.preventDefault(); 
-                    isPaused = !isPaused;
-                    
-                    const textEl = document.getElementById('status-text');
-                    const dotEl = document.getElementById('status-dot');
-                    
-                    if (isPaused) {
-                        clearInterval(slideTimer);
-                        document.getElementById('progress').style.transition = 'none';
-                        textEl.innerText = 'PAUSED';
-                        dotEl.style.animation = 'none';
-                        dotEl.style.backgroundColor = '#999';
-                    } else {
-                        startTimer();
-                        renderJob(); 
-                        textEl.innerText = 'Live';
-                        dotEl.style.animation = 'pulse-live 1.5s infinite';
-                        dotEl.style.backgroundColor = 'var(--live-color)';
-                    }
-                }
-            }
-        });
 
         initSettings();
     </script>
