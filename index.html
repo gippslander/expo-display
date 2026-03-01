@@ -50,28 +50,6 @@
 
         *, *:before, *:after { box-sizing: inherit; }
 
-        /* --- Settings Panel --- */
-        #settings-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(5px); z-index: 9999; display: flex; align-items: center; justify-content: center; }
-        .settings-modal { background: white; padding: 40px; border-radius: 20px; width: 650px; max-width: 90vw; max-height: 90vh; display: flex; flex-direction: column; box-shadow: 0 20px 50px rgba(0,0,0,0.5); overflow-y: auto; }
-        .settings-modal h2 { margin-top: 0; color: var(--primary-color); font-size: 2rem; display: flex; align-items: center; justify-content: space-between; font-weight: 800; }
-        
-        .settings-row { display: flex; gap: 20px; margin-bottom: 20px; flex-wrap: wrap; }
-        .settings-group { display: flex; flex-direction: column; gap: 8px; flex: 1; min-width: 150px; }
-        .settings-group label { font-weight: 600; color: var(--text-main); font-size: 0.95rem; }
-        .settings-group input[type="number"], .settings-group select { padding: 12px; border: 1px solid #ccc; border-radius: 8px; font-size: 1rem; width: 100%; font-family: var(--font-main); min-width: 0; background: white;}
-        
-        .selected-towns-container { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 15px; padding: 10px; background: #f4f6f9; border-radius: 8px; min-height: 44px; max-height: 140px; overflow-y: auto; }
-        .town-pill { background: var(--primary-color); color: white; padding: 6px 12px; border-radius: 20px; font-size: 0.95rem; display: flex; align-items: center; gap: 8px; font-weight: 500; }
-        .town-pill button { background: none; border: none; color: white; cursor: pointer; font-weight: bold; padding: 0; opacity: 0.8; font-family: var(--font-main); }
-        .filter-row { display: flex; gap: 15px; margin-bottom: 10px; width: 100%; }
-        .filter-row input, .filter-row select { padding: 12px; border: 1px solid #ccc; border-radius: 8px; font-size: 1rem; font-family: var(--font-main); min-width: 0; }
-        .filter-row input { flex: 2; }
-        .filter-row select { flex: 1; background-color: white; }
-        .town-list-container { border: 1px solid #ccc; border-radius: 8px; height: 180px; overflow-y: auto; background: #fff; }
-        .town-item { display: flex; align-items: center; gap: 10px; padding: 12px 15px; border-bottom: 1px solid #eee; cursor: pointer; }
-        .save-btn { background: var(--primary-color); color: white; border: none; padding: 15px; font-size: 1.2rem; font-weight: 700; border-radius: 8px; cursor: pointer; margin-top: 10px; font-family: var(--font-main); flex-shrink: 0; }
-        .reset-link { text-align: center; margin-top: 15px; color: #888; font-size: 0.9rem; cursor: pointer; text-decoration: underline; font-weight: 500; flex-shrink: 0; }
-
         /* --- Main Header --- */
         header { background-color: var(--header-bg); padding: 15px 40px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 15px rgba(0,0,0,0.05); z-index: 10; height: 90px; }
         .header-logo { height: 100%; max-height: 50px; }
@@ -187,46 +165,6 @@
 </head>
 <body>
 
-    <div id="settings-overlay">
-        <div class="settings-modal">
-            <h2>⚙️ Expo Setup</h2>
-            
-            <div class="settings-row">
-                <div class="settings-group">
-                    <label>Slide Duration (seconds):</label>
-                    <input type="number" id="setting-duration" value="15" min="5" max="60">
-                </div>
-                <div class="settings-group">
-                    <label>Alert Screen Frequency:</label>
-                    <input type="number" id="setting-alert-freq" value="5" min="2" max="20" title="How many jobs to show before displaying the email alerts screen.">
-                </div>
-                <div class="settings-group">
-                    <label>Display Orientation:</label>
-                    <select id="setting-orientation">
-                        <option value="landscape">Landscape (Wide TV)</option>
-                        <option value="portrait">Portrait (Vertical Kiosk)</option>
-                    </select>
-                </div>
-            </div>
-
-            <div class="settings-group">
-                <label>Selected Towns:</label>
-                <div id="selected-towns" class="selected-towns-container"></div>
-            </div>
-            
-            <div class="settings-group">
-                <div class="filter-row">
-                    <input type="text" id="town-search" placeholder="Search to add towns..." onkeyup="renderTownsUI()">
-                    <select id="region-filter" onchange="renderTownsUI()"><option value="all">All Regions</option></select>
-                </div>
-                <div id="town-list" class="town-list-container"></div>
-            </div>
-            
-            <button class="save-btn" onclick="saveSettingsAndStart()">Save & Launch Presentation</button>
-            <div class="reset-link" onclick="factoryReset()">Reset all settings to default</div>
-        </div>
-    </div>
-
     <header>
         <img src="https://d3535lqr6sqxto.cloudfront.net/logos/rEkuQybTnVw95OUPNTLLVxtGB7t4BbAVgbRJTndj.png" alt="Gippslander Logo" class="header-logo">
         <div class="header-right">
@@ -273,10 +211,9 @@
     </div>
 
     <script>
-        const LOCATIONS_URL = 'https://cdn.jsdelivr.net/gh/gippslander/assets@main/locations.json';
         const BASE_API_URL = 'https://gippsland-jobs-proxy.vercel.app/api/jobs?towns=';
         
-        let allTowns = [], selectedTowns = ['Inverloch'];
+        let selectedTowns = [];
         let displayDuration = 15000;
         let alertFrequency = 5; 
         let jobs = [], currentIndex = 0;
@@ -284,76 +221,60 @@
         let jobDisplayCounter = 0; 
         let currentTownIndex = 0;
 
-        function factoryReset() { localStorage.clear(); location.reload(); }
-
         async function initSettings() {
+            // Get URL parameter or default to '0'
             const urlParams = new URLSearchParams(window.location.search);
-            const configId = urlParams.get('id');
+            let configId = urlParams.get('id') || '0'; 
             const CACHE_KEY = `gipps_config_${configId}`;
 
-            if (configId) {
-                try {
-                    // 1. Try fetching the live config
-                    const configRes = await fetch(`config.json?t=${new Date().getTime()}`);
-                    if (!configRes.ok) throw new Error("Network offline or config missing");
-                    
-                    const configs = await configRes.json();
+            try {
+                // 1. Fetch live config
+                const configRes = await fetch(`config.json?t=${new Date().getTime()}`);
+                if (!configRes.ok) throw new Error("Network offline or config missing");
+                
+                const configs = await configRes.json();
 
-                    if (configs[configId]) {
-                        const conf = configs[configId];
-                        console.log(`Loaded live config for ID: ${configId}`);
-                        
-                        // Cache it for offline use
-                        localStorage.setItem(CACHE_KEY, JSON.stringify(conf));
-                        
-                        applyConfigAndStart(conf, configId);
-                        return; // Stop here, skip manual fallback
-                    } else {
-                        console.warn(`Config ID "${configId}" not found in JSON.`);
-                    }
-                } catch (error) {
-                    // 2. Offline Fallback: Check for cached config
-                    console.warn("Could not reach live config. Checking offline cache...", error);
-                    const cachedConf = localStorage.getItem(CACHE_KEY);
+                // If the requested ID doesn't exist, fall back to '0'
+                if (!configs[configId]) {
+                    console.warn(`Config ID "${configId}" not found. Falling back to default "0".`);
+                    configId = '0';
+                }
+
+                if (configs[configId]) {
+                    const conf = configs[configId];
+                    console.log(`Loaded live config for ID: ${configId}`);
                     
-                    if (cachedConf) {
-                        console.log(`Using cached offline config for ID: ${configId}`);
-                        applyConfigAndStart(JSON.parse(cachedConf), configId);
-                        return; // Stop here, skip manual fallback
-                    } else {
-                        console.error("No cached config found. Falling back to manual mode.");
-                    }
+                    // Cache it for offline use
+                    localStorage.setItem(CACHE_KEY, JSON.stringify(conf));
+                    
+                    applyConfigAndStart(conf, configId);
+                } else {
+                    throw new Error("Default config '0' is missing from JSON.");
+                }
+            } catch (error) {
+                // 2. Offline Fallback: Check for cached config
+                console.warn("Could not reach live config. Checking offline cache...", error);
+                const cachedConf = localStorage.getItem(CACHE_KEY);
+                
+                if (cachedConf) {
+                    console.log(`Using cached offline config for ID: ${configId}`);
+                    applyConfigAndStart(JSON.parse(cachedConf), configId);
+                } else {
+                    // 3. Absolute Emergency Failsafe
+                    console.error("No cached config found. Starting with emergency hardcoded defaults.");
+                    applyConfigAndStart({
+                        towns: ["Gippsland"],
+                        duration: 15,
+                        alertFreq: 5,
+                        orientation: "landscape"
+                    }, "emergency");
                 }
             }
-
-            // 3. FALLBACK: Run the original manual settings code if no ID or no cache
-            try {
-                const savedDuration = localStorage.getItem('gipps_duration');
-                if (savedDuration) { document.getElementById('setting-duration').value = savedDuration; displayDuration = parseInt(savedDuration) * 1000; }
-                
-                const savedFreq = localStorage.getItem('gipps_alert_freq');
-                if (savedFreq) { document.getElementById('setting-alert-freq').value = savedFreq; alertFrequency = parseInt(savedFreq); }
-
-                const savedOrientation = localStorage.getItem('gipps_orientation');
-                if (savedOrientation) { document.getElementById('setting-orientation').value = savedOrientation; }
-
-                const savedTowns = localStorage.getItem('gipps_towns');
-                if (savedTowns) { const parsed = JSON.parse(savedTowns); if (parsed.length > 0) selectedTowns = parsed; }
-                
-                const res = await fetch(LOCATIONS_URL);
-                allTowns = await res.json();
-                allTowns.sort((a, b) => a.label.localeCompare(b.label));
-                const regions = [...new Set(allTowns.map(t => t.region).filter(Boolean))].sort();
-                const regionSelect = document.getElementById('region-filter');
-                regions.forEach(r => { regionSelect.innerHTML += `<option value="${r}">${r}</option>`; });
-                
-                renderTownsUI();
-            } catch (e) { console.error(e); }
         }
 
         function applyConfigAndStart(conf, configId) {
             // Apply variables
-            selectedTowns = conf.towns || ['Inverloch'];
+            selectedTowns = conf.towns || ['Gippsland'];
             displayDuration = parseInt(conf.duration || 15) * 1000;
             alertFrequency = parseInt(conf.alertFreq || 5);
             
@@ -363,8 +284,8 @@
                 document.body.classList.remove('portrait');
             }
 
-            // Hide UI
-            document.getElementById('settings-overlay').style.display = 'none';
+            // Enter fullscreen if allowed by the browser
+            if (!document.fullscreenElement) document.documentElement.requestFullscreen().catch(e => {});
 
             // Start Presentation
             fetchJobs(false);
@@ -380,25 +301,22 @@
         function startConfigPoll(currentConf, configId) {
             clearInterval(configPollTimer);
             
-            // Check every 30 minutes (30 * 60 * 1000)
             configPollTimer = setInterval(async () => {
                 try {
                     const configRes = await fetch(`config.json?t=${new Date().getTime()}`);
-                    if (!configRes.ok) return; // Fail silently if offline
+                    if (!configRes.ok) return; 
                     
                     const configs = await configRes.json();
                     
                     if (configs[configId]) {
                         const newConf = configs[configId];
                         
-                        // Compare the new config with our running config
                         if (JSON.stringify(newConf) !== JSON.stringify(currentConf)) {
-                            console.log("Config update detected in background. Applying...");
+                            console.log("Config update detected. Applying...");
                             
-                            // Update cache & variables
                             localStorage.setItem(`gipps_config_${configId}`, JSON.stringify(newConf));
                             currentConf = newConf;
-                            selectedTowns = newConf.towns || ['Inverloch'];
+                            selectedTowns = newConf.towns || ['Gippsland'];
                             displayDuration = parseInt(newConf.duration || 15) * 1000;
                             alertFrequency = parseInt(newConf.alertFreq || 5);
                             
@@ -408,7 +326,6 @@
                                 document.body.classList.remove('portrait');
                             }
                             
-                            // Silently fetch new jobs for the updated towns
                             fetchJobs(true);
                         }
                     }
@@ -416,56 +333,6 @@
                     console.warn("Background config check failed. Keeping current settings.");
                 }
             }, 30 * 60 * 1000);
-        }
-
-        function renderTownsUI() {
-            const selectedContainer = document.getElementById('selected-towns');
-            const availableContainer = document.getElementById('town-list');
-            const searchQuery = document.getElementById('town-search').value.toLowerCase();
-            const selectedRegion = document.getElementById('region-filter').value;
-
-            selectedContainer.innerHTML = selectedTowns.length === 0 ? '<span style="color:#888;">No towns selected</span>' : '';
-            selectedTowns.forEach(town => { selectedContainer.innerHTML += `<div class="town-pill">${town}<button onclick="toggleTown('${town}')">✕</button></div>`; });
-
-            let availableHtml = '';
-            allTowns.forEach(town => {
-                if (selectedTowns.includes(town.label)) return;
-                if (selectedRegion !== 'all' && town.region !== selectedRegion) return;
-                if (searchQuery && !town.label.toLowerCase().includes(searchQuery)) return;
-                availableHtml += `<div class="town-item" onclick="toggleTown('${town.label}')"><span class="add-icon">+</span><div><div style="font-weight:bold;">${town.label}</div><div style="color:#888; font-size:0.85em;">${town.region || 'No Region'}</div></div></div>`;
-            });
-            availableContainer.innerHTML = availableHtml || '<div style="text-align:center; padding: 20px; color:#888;">No matching towns found</div>';
-        }
-
-        function toggleTown(t) { if (selectedTowns.includes(t)) selectedTowns = selectedTowns.filter(x => x !== t); else selectedTowns.push(t); renderTownsUI(); }
-
-        function saveSettingsAndStart() {
-            if (selectedTowns.length === 0) return alert("Please select at least one town to monitor.");
-            
-            const sec = document.getElementById('setting-duration').value;
-            displayDuration = parseInt(sec) * 1000;
-            localStorage.setItem('gipps_duration', sec);
-            
-            const freq = document.getElementById('setting-alert-freq').value;
-            alertFrequency = parseInt(freq);
-            localStorage.setItem('gipps_alert_freq', freq);
-
-            const orientation = document.getElementById('setting-orientation').value;
-            localStorage.setItem('gipps_orientation', orientation);
-            if (orientation === 'portrait') {
-                document.body.classList.add('portrait');
-            } else {
-                document.body.classList.remove('portrait');
-            }
-
-            localStorage.setItem('gipps_towns', JSON.stringify(selectedTowns));
-            document.getElementById('settings-overlay').style.display = 'none';
-            
-            if (!document.fullscreenElement) document.documentElement.requestFullscreen().catch(e => {});
-            
-            fetchJobs(false);
-            clearInterval(backgroundRefreshTimer);
-            backgroundRefreshTimer = setInterval(() => fetchJobs(true), 15 * 60 * 1000);
         }
 
         async function fetchJobs(isSilent = false) {
@@ -617,6 +484,7 @@
             setTimeout(() => { progressBar.style.transition = `width ${displayDuration}ms linear`; progressBar.style.width = '100%'; }, 50);
         }
 
+        // Initialize!
         initSettings();
     </script>
 </body>
