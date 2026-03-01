@@ -131,12 +131,13 @@
         .highlight-town { color: #ffca28; display: inline-block; transition: opacity 0.3s ease, transform 0.3s ease; }
 
         .hook-qr-box { 
-            background: white; padding: 20px 30px 15px 30px; border-radius: 25px; box-shadow: 0 20px 50px rgba(0,0,0,0.4);
-            display: flex; flex-direction: column; align-items: center; gap: 15px;
+            background: white; padding: 35px 40px; border-radius: 25px; box-shadow: 0 20px 50px rgba(0,0,0,0.4);
+            display: flex; flex-direction: column; align-items: center; gap: 10px;
             animation: popIn 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) backwards; animation-delay: 0.7s;
         }
-        .hook-qr-box img { width: 100%; max-width: 250px; height: auto; margin-bottom: -5px; }
+        .hook-qr-box img { width: 100%; max-width: 250px; height: auto; }
         .hook-qr-text { color: var(--text-main); font-weight: 800; font-size: 1.5rem; display: flex; align-items: center; gap: 10px; margin-bottom: 5px;}
+        .hook-qr-box .qr-fallback-text { font-size: 1.1rem; margin-top: 5px; color: var(--text-muted); }
 
         @keyframes popIn { 0% { transform: scale(0.8) translateY(30px); opacity: 0; } 100% { transform: scale(1) translateY(0); opacity: 1; } }
 
@@ -245,7 +246,7 @@
         </div>
 
         <div class="sidebar" id="main-sidebar">
-            <h2>All job alerts</h2>
+            <h2>Get job alerts</h2>
             <p>Scan to get new jobs in your area sent directly to your phone.</p>
             <svg class="bounce-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                 <rect width="20" height="16" x="2" y="4" rx="2"/>
@@ -511,7 +512,6 @@
             document.getElementById('main-sidebar').style.display = 'flex';
             
             const job = jobs[currentIndex];
-            // Added onerror failsafe to gracefully hide broken employer logos
             const logo = job.employer?.logo ? `<img src="${job.employer.logo}" class="company-logo" onerror="this.style.display='none'">` : '';
             const location = (job.location || '').replace(/,\s*Victoria,\s*Australia/i, '');
             const cleanDesc = (job.description || '').replace(/<[^>]*>/g, '');
