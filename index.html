@@ -33,7 +33,8 @@
             background: rgba(0, 0, 0, 0.85);
             backdrop-filter: blur(5px);
             z-index: 9999;
-            display: flex; /* Starts hidden via inline style in HTML */
+            /* Now defaults to visible */
+            display: flex; 
             align-items: center;
             justify-content: center;
         }
@@ -42,7 +43,7 @@
             background: white;
             padding: 40px;
             border-radius: 20px;
-            width: 600px; /* Made slightly wider for the new layout */
+            width: 600px; 
             max-height: 90vh;
             display: flex;
             flex-direction: column;
@@ -56,12 +57,6 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
-        }
-
-        .settings-hint {
-            font-size: 0.9rem;
-            color: #888;
-            font-weight: normal;
         }
 
         .settings-group {
@@ -293,12 +288,9 @@
 </head>
 <body>
 
-    <div id="settings-overlay" style="display: none;">
+    <div id="settings-overlay">
         <div class="settings-modal">
-            <h2>
-                ⚙️ Expo Setup
-                <span class="settings-hint">Press F2 or S to close</span>
-            </h2>
+            <h2>⚙️ Expo Setup</h2>
             
             <div class="settings-group">
                 <label>Slide Duration (seconds):</label>
@@ -335,13 +327,13 @@
                 <span class="live-dot" id="status-dot"></span>
                 <span id="status-text">Live</span>
             </div>
-            </div>
+        </div>
     </header>
 
     <div class="content-wrapper">
         <div class="job-container">
             <div id="job-display">
-                <div class="loader">Press 'F2' or 'S' to configure your display...</div>
+                <div class="loader">Waiting for setup...</div>
             </div>
             <div class="progress-bar-container">
                 <div class="progress-bar" id="progress"></div>
@@ -400,19 +392,11 @@
                     regionSelect.innerHTML += `<option value="${r}">${r}</option>`;
                 });
 
-                // Auto-start if we have saved data, otherwise open settings
-                if (savedTowns && selectedTowns.length > 0) {
-                    fetchJobs();
-                } else {
-                    openSettings();
-                }
-
+                // Always render UI and show settings on load
                 renderTownsUI();
 
             } catch (error) {
                 document.getElementById('town-list').innerHTML = `<div style="color:red; padding:10px;">Failed to load towns. Check internet connection.</div>`;
-                // If offline but we have cached jobs, just run them
-                if (localStorage.getItem('gipps_cached_jobs')) fetchJobs();
             }
         }
 
@@ -439,17 +423,11 @@
 
             // 2. Render Available Towns (applying search & region filters)
             availableContainer.innerHTML = '';
-            // Sort remaining towns alphabetically
             const sortedTowns = [...allTowns].sort((a, b) => a.label.localeCompare(b.label));
 
             sortedTowns.forEach(town => {
-                // Hide if already selected
                 if (selectedTowns.includes(town.label)) return;
-                
-                // Filter by region
                 if (selectedRegion !== 'all' && town.region !== selectedRegion) return;
-                
-                // Filter by search text
                 if (searchQuery && !town.label.toLowerCase().includes(searchQuery)) return;
 
                 const regionLabel = town.region ? town.region : 'No Region';
@@ -472,7 +450,7 @@
             } else {
                 selectedTowns.push(townLabel);
             }
-            renderTownsUI(); // Re-render the UI instantly
+            renderTownsUI(); 
         }
 
         function saveSettingsAndStart() {
@@ -491,16 +469,10 @@
             fetchJobs();
         }
 
-        function openSettings() {
-            clearInterval(slideTimer); // Pause the carousel while editing
-            renderTownsUI(); // Make sure UI is up to date
-            document.getElementById('settings-overlay').style.display = 'flex';
-        }
-
         // --- CORE JOB LOGIC (WITH CACHING) ---
         async function fetchJobs() {
             if (selectedTowns.length === 0) {
-                document.getElementById('job-display').innerHTML = '<h2 class="job-title" style="text-align:center;">Press F2 to select towns to monitor.</h2>';
+                document.getElementById('job-display').innerHTML = '<h2 class="job-title" style="text-align:center;">Refresh the page and select towns to monitor.</h2>';
                 return;
             }
 
@@ -643,27 +615,11 @@
             }
         }
 
-        // --- KEYBOARD & HOTKEY CONTROLS ---
+        // --- KEYBOARD CONTROLS (Only for Carousel) ---
         document.addEventListener('keydown', (e) => {
-            const overlay = document.getElementById('settings-overlay');
-            const isSettingsOpen = overlay.style.display === 'flex';
+            const isSettingsOpen = document.getElementById('settings-overlay').style.display === 'flex';
 
-            // 1. Hotkey to open/close Settings (F2 or 'S')
-            if (e.key === 'F2' || e.key.toLowerCase() === 's') {
-                // Ignore if user is currently typing in the search box
-                if (document.activeElement.id === 'town-search' && e.key.toLowerCase() === 's') return;
-                
-                e.preventDefault();
-                if (isSettingsOpen) {
-                    overlay.style.display = 'none';
-                    if (jobs.length > 0 && !isPaused) startTimer();
-                } else {
-                    openSettings();
-                }
-                return;
-            }
-
-            // 2. Carousel Controls (Only work if settings are closed)
+            // Only allow controls if settings are closed and jobs exist
             if (!isSettingsOpen && jobs.length > 0) {
                 if (e.key === 'ArrowRight') {
                     currentIndex = (currentIndex + 1) % jobs.length;
