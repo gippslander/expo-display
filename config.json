@@ -1,15 +1,22 @@
 {
+  "0": {
+    "name": "Default Catch-All (Entire Region)",
+    "towns": ["Gippsland", "Traralgon", "Warragul", "Bairnsdale", "Sale", "Morwell"],
+    "duration": 15,
+    "alertFreq": 5,
+    "orientation": "landscape"
+  },
   "1": {
-    "name": "South Gippsland Screen",
-    "towns": ["Inverloch", "Wonthaggi", "Leongatha"],
+    "name": "Screen One - South Gippsland",
+    "towns": ["Inverloch", "Wonthaggi", "Leongatha", "Korumburra"],
     "duration": 15,
     "alertFreq": 5,
     "orientation": "landscape"
   },
   "2": {
-    "name": "Latrobe Valley Kiosk",
+    "name": "Screen Two - Kiosk Mode",
     "towns": ["Traralgon", "Morwell", "Moe"],
-    "duration": 10,
+    "duration": 12,
     "alertFreq": 4,
     "orientation": "portrait"
   }
