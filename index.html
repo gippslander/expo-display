@@ -280,13 +280,53 @@
         let displayDuration = 15000;
         let alertFrequency = 5; 
         let jobs = [], currentIndex = 0;
-        let slideTimer, backgroundRefreshTimer, townCycleInterval;
+        let slideTimer, backgroundRefreshTimer, townCycleInterval, configPollTimer;
         let jobDisplayCounter = 0; 
         let currentTownIndex = 0;
 
         function factoryReset() { localStorage.clear(); location.reload(); }
 
         async function initSettings() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const configId = urlParams.get('id');
+            const CACHE_KEY = `gipps_config_${configId}`;
+
+            if (configId) {
+                try {
+                    // 1. Try fetching the live config
+                    const configRes = await fetch(`config.json?t=${new Date().getTime()}`);
+                    if (!configRes.ok) throw new Error("Network offline or config missing");
+                    
+                    const configs = await configRes.json();
+
+                    if (configs[configId]) {
+                        const conf = configs[configId];
+                        console.log(`Loaded live config for ID: ${configId}`);
+                        
+                        // Cache it for offline use
+                        localStorage.setItem(CACHE_KEY, JSON.stringify(conf));
+                        
+                        applyConfigAndStart(conf, configId);
+                        return; // Stop here, skip manual fallback
+                    } else {
+                        console.warn(`Config ID "${configId}" not found in JSON.`);
+                    }
+                } catch (error) {
+                    // 2. Offline Fallback: Check for cached config
+                    console.warn("Could not reach live config. Checking offline cache...", error);
+                    const cachedConf = localStorage.getItem(CACHE_KEY);
+                    
+                    if (cachedConf) {
+                        console.log(`Using cached offline config for ID: ${configId}`);
+                        applyConfigAndStart(JSON.parse(cachedConf), configId);
+                        return; // Stop here, skip manual fallback
+                    } else {
+                        console.error("No cached config found. Falling back to manual mode.");
+                    }
+                }
+            }
+
+            // 3. FALLBACK: Run the original manual settings code if no ID or no cache
             try {
                 const savedDuration = localStorage.getItem('gipps_duration');
                 if (savedDuration) { document.getElementById('setting-duration').value = savedDuration; displayDuration = parseInt(savedDuration) * 1000; }
@@ -309,6 +349,73 @@
                 
                 renderTownsUI();
             } catch (e) { console.error(e); }
+        }
+
+        function applyConfigAndStart(conf, configId) {
+            // Apply variables
+            selectedTowns = conf.towns || ['Inverloch'];
+            displayDuration = parseInt(conf.duration || 15) * 1000;
+            alertFrequency = parseInt(conf.alertFreq || 5);
+            
+            if (conf.orientation === 'portrait') {
+                document.body.classList.add('portrait');
+            } else {
+                document.body.classList.remove('portrait');
+            }
+
+            // Hide UI
+            document.getElementById('settings-overlay').style.display = 'none';
+
+            // Start Presentation
+            fetchJobs(false);
+            
+            // Set up job background refresh (every 15 mins)
+            clearInterval(backgroundRefreshTimer);
+            backgroundRefreshTimer = setInterval(() => fetchJobs(true), 15 * 60 * 1000);
+
+            // Start background config polling
+            startConfigPoll(conf, configId);
+        }
+
+        function startConfigPoll(currentConf, configId) {
+            clearInterval(configPollTimer);
+            
+            // Check every 30 minutes (30 * 60 * 1000)
+            configPollTimer = setInterval(async () => {
+                try {
+                    const configRes = await fetch(`config.json?t=${new Date().getTime()}`);
+                    if (!configRes.ok) return; // Fail silently if offline
+                    
+                    const configs = await configRes.json();
+                    
+                    if (configs[configId]) {
+                        const newConf = configs[configId];
+                        
+                        // Compare the new config with our running config
+                        if (JSON.stringify(newConf) !== JSON.stringify(currentConf)) {
+                            console.log("Config update detected in background. Applying...");
+                            
+                            // Update cache & variables
+                            localStorage.setItem(`gipps_config_${configId}`, JSON.stringify(newConf));
+                            currentConf = newConf;
+                            selectedTowns = newConf.towns || ['Inverloch'];
+                            displayDuration = parseInt(newConf.duration || 15) * 1000;
+                            alertFrequency = parseInt(newConf.alertFreq || 5);
+                            
+                            if (newConf.orientation === 'portrait') {
+                                document.body.classList.add('portrait');
+                            } else {
+                                document.body.classList.remove('portrait');
+                            }
+                            
+                            // Silently fetch new jobs for the updated towns
+                            fetchJobs(true);
+                        }
+                    }
+                } catch (e) {
+                    console.warn("Background config check failed. Keeping current settings.");
+                }
+            }, 30 * 60 * 1000);
         }
 
         function renderTownsUI() {
