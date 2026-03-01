@@ -12,7 +12,6 @@
     <style>
         :root {
             --primary-color: #4CAF50;
-            --bg-color: #E1F0F7;      
             --header-bg: #FFFFFF;     
             --text-main: #1a1a1a;
             --text-muted: #555555;
@@ -21,7 +20,13 @@
             --font-main: 'Poppins', sans-serif;
         }
 
-        /* --- PIXEL SHIFTING FOR BURN-IN PROTECTION --- */
+        /* --- AMBIENT BACKGROUND & PIXEL SHIFT --- */
+        @keyframes gradientMesh {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
         @keyframes pixelShift {
             0%   { transform: translate(0px, 0px); }
             20%  { transform: translate(2px, 1px); }
@@ -36,16 +41,17 @@
             padding: 0;
             height: 100%;
             font-family: var(--font-main);
-            background-color: var(--bg-color);
             overflow: hidden;
             display: flex;
             flex-direction: column;
             box-sizing: border-box;
+            cursor: none; /* Hides the mouse pointer for true kiosk mode */
         }
         
         body {
-            /* Slowly moves the entire app slightly over a 5-minute loop */
-            animation: pixelShift 300s infinite alternate linear;
+            background: linear-gradient(-45deg, #e1f0f7, #d4ebd0, #cde3f5, #e8f5e9);
+            background-size: 400% 400%;
+            animation: gradientMesh 25s ease infinite, pixelShift 300s infinite alternate linear;
         }
 
         *, *:before, *:after { box-sizing: inherit; }
@@ -53,8 +59,40 @@
         /* --- Main Header --- */
         header { background-color: var(--header-bg); padding: 15px 40px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 15px rgba(0,0,0,0.05); z-index: 10; height: 90px; }
         .header-logo { height: 100%; max-height: 50px; }
-        .header-right { display: flex; align-items: center; gap: 20px; }
-        .live-indicator { display: flex; align-items: center; gap: 10px; font-weight: 900; font-size: 1.5rem; text-transform: uppercase; letter-spacing: 2px; }
+        .header-right { display: flex; align-items: center; gap: 25px; }
+        
+        /* --- EXPO CLOCK --- */
+        .expo-clock {
+            font-size: 1.4rem;
+            font-weight: 800;
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding-right: 25px;
+            border-right: 2px solid #eee;
+            font-variant-numeric: tabular-nums;
+            letter-spacing: 0.5px;
+        }
+
+        /* --- LIVE VIEW COUNTER --- */
+        .view-counter {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: #f8f9fa;
+            padding: 8px 18px;
+            border-radius: 50px;
+            border: 1.5px solid #e0e0e0;
+            font-weight: 700;
+            color: #0d47a1; 
+            font-size: 1.2rem;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);
+        }
+        .view-counter svg { width: 22px; height: 22px; }
+        .counter-number { font-variant-numeric: tabular-nums; letter-spacing: 0.5px; }
+
+        .live-indicator { display: flex; align-items: center; gap: 10px; font-weight: 900; font-size: 1.5rem; letter-spacing: 1px; }
         .status-live { color: var(--live-color); }
         .status-offline { color: var(--offline-color); }
         .live-dot { width: 16px; height: 16px; border-radius: 50%; background-color: var(--live-color); animation: pulse-live 1.5s infinite; }
@@ -63,6 +101,14 @@
 
         /* --- BASE LAYOUT (LANDSCAPE) --- */
         .content-wrapper { display: flex; flex: 1; padding: 30px 40px; gap: 30px; min-height: 0; position: relative; flex-direction: row;}
+
+        /* --- TEXT URL FALLBACKS --- */
+        .qr-fallback-text {
+            font-size: 1rem;
+            color: var(--text-muted);
+            margin-top: 15px;
+            font-weight: 500;
+        }
 
         /* --- THE EMAIL ALERTS TAKEOVER SCREEN --- */
         #interstitial-view {
@@ -73,25 +119,23 @@
             background-size: 300% 300%; animation: gradientShift 10s ease infinite; overflow: hidden; padding: 20px;
         }
 
-        @keyframes gradientShift { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
-
         .bg-icon { position: absolute; color: rgba(255,255,255,0.1); animation: floatUp 8s linear infinite; }
         @keyframes floatUp { 0% { transform: translateY(100vh) rotate(0deg) scale(0.8); opacity: 0; } 20% { opacity: 1; } 80% { opacity: 1; } 100% { transform: translateY(-20vh) rotate(360deg) scale(1.2); opacity: 0; } }
 
         .hook-content { z-index: 2; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; }
         
-        .hook-kicker { font-size: clamp(1.5rem, 3vh, 2.2rem); font-weight: 800; letter-spacing: 4px; color: white; opacity: 0.9; text-transform: uppercase; margin-bottom: 10px; animation: popIn 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) backwards; animation-delay: 0.1s;}
+        .hook-kicker { font-size: clamp(1.5rem, 3vh, 2.2rem); font-weight: 800; letter-spacing: 2px; color: white; opacity: 0.9; margin-bottom: 10px; animation: popIn 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) backwards; animation-delay: 0.1s;}
         .hook-title { font-size: clamp(3.5rem, 7vh, 5.5rem); font-weight: 900; margin-bottom: 15px; line-height: 1.1; text-shadow: 2px 4px 10px rgba(0,0,0,0.3); animation: popIn 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) backwards; animation-delay: 0.3s; }
         .hook-sub { font-size: clamp(1.4rem, 2.8vh, 1.8rem); margin-bottom: 30px; opacity: 0.95; font-weight: 500; max-width: 900px; animation: popIn 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) backwards; animation-delay: 0.5s; }
         
         .highlight-town { color: #ffca28; display: inline-block; transition: opacity 0.3s ease, transform 0.3s ease; }
 
         .hook-qr-box { 
-            background: white; padding: 20px 30px; border-radius: 25px; box-shadow: 0 20px 50px rgba(0,0,0,0.4);
+            background: white; padding: 20px 30px 15px 30px; border-radius: 25px; box-shadow: 0 20px 50px rgba(0,0,0,0.4);
             display: flex; flex-direction: column; align-items: center; gap: 15px;
             animation: popIn 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) backwards; animation-delay: 0.7s;
         }
-        .hook-qr-box img { width: 100%; max-width: 250px; height: auto; }
+        .hook-qr-box img { width: 100%; max-width: 250px; height: auto; margin-bottom: -5px; }
         .hook-qr-text { color: var(--text-main); font-weight: 800; font-size: 1.5rem; display: flex; align-items: center; gap: 10px; margin-bottom: 5px;}
 
         @keyframes popIn { 0% { transform: scale(0.8) translateY(30px); opacity: 0; } 100% { transform: scale(1) translateY(0); opacity: 1; } }
@@ -104,7 +148,7 @@
         
         .delay-1 { animation-delay: 0.1s; } .delay-2 { animation-delay: 0.2s; } .delay-3 { animation-delay: 0.3s; } .delay-4 { animation-delay: 0.4s; } .delay-5 { animation-delay: 0.5s; }
 
-        .job-category { font-size: clamp(1.2rem, 2vh, 1.6rem); color: var(--primary-color); text-transform: uppercase; font-weight: 800; margin-bottom: 12px; letter-spacing: 2px;}
+        .job-category { font-size: clamp(1.2rem, 2vh, 1.6rem); color: var(--primary-color); font-weight: 800; margin-bottom: 12px; letter-spacing: 1px;}
         .job-title { font-size: clamp(3rem, 6vh, 4.2rem); color: var(--text-main); margin: 0 0 20px 0; font-weight: 900; line-height: 1.1; }
         .job-company { font-size: clamp(1.6rem, 3vh, 2.2rem); color: var(--text-muted); margin: 0 0 25px 0; display: flex; align-items: center; gap: 15px; font-weight: 600;}
         .company-logo { max-height: 50px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); animation: floatLogo 4s ease-in-out infinite; }
@@ -114,7 +158,15 @@
         .badge { background-color: #f8f9fa; padding: 12px 24px; border-radius: 50px; border: 1.5px solid #e0e0e0; display: flex; align-items: center; gap: 8px; font-weight: 700; color: #444; font-size: clamp(1.1rem, 1.8vh, 1.4rem); }
         .badge svg { width: 24px; height: 24px; }
 
-        .job-description { font-size: clamp(1.4rem, 2.5vh, 1.8rem); color: #666; line-height: 1.6; border-top: 2px dashed #eee; padding-top: 25px; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; font-weight: 400;}
+        /* Inner Layout for Job Description and Specific QR */
+        .job-content-split { display: flex; gap: 30px; align-items: stretch; border-top: 2px dashed #eee; padding-top: 25px;}
+        .job-description { flex: 1; font-size: clamp(1.4rem, 2.5vh, 1.8rem); color: #666; line-height: 1.6; display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden; font-weight: 400;}
+        
+        .job-specific-qr { display: flex; flex-direction: column; align-items: center; justify-content: center; background: #f4f6f9; padding: 15px; border-radius: 15px; border: 1.5px solid #e0e0e0; min-width: 160px;}
+        .job-specific-qr img { width: 120px; height: 120px; margin-bottom: 8px; mix-blend-mode: multiply;}
+        .job-specific-qr .qr-label { font-size: 1rem; font-weight: 700; color: var(--primary-color); display: flex; align-items: center; gap: 5px; text-align: center;}
+        .job-specific-qr .qr-label svg { width: 18px; height: 18px; }
+        .job-specific-qr .qr-fallback-text { font-size: 0.85rem; margin-top: 5px; color: #888; font-weight: 600; }
 
         /* --- Right Sidebar --- */
         .sidebar { flex: 1; background: var(--primary-color); border-radius: 20px; padding: 30px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; color: white; position: relative; overflow: hidden;}
@@ -126,40 +178,27 @@
         .bounce-icon { width: 50px; height: 50px; margin-bottom: 15px; color: #ffca28; animation: bounce 2s infinite; position: relative; z-index: 2;}
         @keyframes bounce { 0%, 20%, 50%, 80%, 100% { transform: translateY(0); } 40% { transform: translateY(-15px); } 60% { transform: translateY(-7px); } }
         
-        .qr-wrapper { background: white; padding: 15px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); position: relative; z-index: 2; width: 80%; max-width: 280px; display: flex; justify-content: center; align-items: center;}
+        .qr-wrapper { background: white; padding: 15px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); position: relative; z-index: 2; width: 80%; max-width: 280px; display: flex; justify-content: center; align-items: center; animation: heartbeat 5s infinite;}
         .qr-wrapper img { width: 100%; height: auto; display: block; }
 
-        .progress-bar-container { width: 100%; height: 8px; background-color: #f0f0f0; position: absolute; bottom: 0; left: 0; }
+        /* --- Progress Bar --- */
+        .progress-bar-container { width: 100%; height: 8px; background-color: #f0f0f0; position: absolute; bottom: 0; left: 0; z-index: 30; }
         .progress-bar { height: 100%; background-color: var(--primary-color); width: 0%; }
         .loader { font-size: 2rem; color: var(--primary-color); text-align: center; width: 100%; font-weight: 800; }
 
         /* ========================================= */
         /* --- PORTRAIT MODE OVERRIDES --- */
         /* ========================================= */
-        body.portrait .content-wrapper {
-            flex-direction: column; /* Stacks the boxes vertically */
-        }
-        body.portrait .job-container {
-            flex: 1.7; /* Gives job slightly more space on top */
-            padding: 40px;
-        }
-        body.portrait .sidebar {
-            flex: 1;
-            padding: 30px;
-        }
-        /* Make QR code slightly smaller in portrait so it doesn't get cut off vertically */
-        body.portrait .qr-wrapper {
-            max-width: 200px;
-        }
-        body.portrait .hook-qr-box {
-            max-width: 220px;
-        }
-        body.portrait .hook-title {
-            font-size: clamp(2.5rem, 5vh, 4rem); /* Prevent title from taking too much height */
-        }
-        body.portrait .bounce-icon {
-            width: 40px; height: 40px; margin-bottom: 10px;
-        }
+        body.portrait .content-wrapper { flex-direction: column; }
+        body.portrait .job-container { flex: 1.7; padding: 40px; }
+        body.portrait .sidebar { flex: 1; padding: 30px; }
+        body.portrait .qr-wrapper { max-width: 200px; }
+        body.portrait .hook-qr-box { max-width: 220px; }
+        body.portrait .hook-title { font-size: clamp(2.5rem, 5vh, 4rem); }
+        body.portrait .bounce-icon { width: 40px; height: 40px; margin-bottom: 10px; }
+        body.portrait .job-content-split { flex-direction: column; align-items: flex-start; gap: 15px; }
+        body.portrait .job-specific-qr { flex-direction: row; gap: 15px; width: 100%; justify-content: flex-start; padding: 10px;}
+        body.portrait .job-specific-qr img { width: 80px; height: 80px; margin-bottom: 0;}
 
     </style>
 </head>
@@ -168,6 +207,13 @@
     <header>
         <img src="https://d3535lqr6sqxto.cloudfront.net/logos/rEkuQybTnVw95OUPNTLLVxtGB7t4BbAVgbRJTndj.png" alt="Gippslander Logo" class="header-logo">
         <div class="header-right">
+            <div class="expo-clock" id="live-clock">12:00 AM</div>
+            
+            <div class="view-counter" id="view-counter-box" style="display: none;">
+                <svg stroke="currentColor" fill="none" stroke-width="2.5" viewBox="0 0 24 24"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
+                <span class="counter-number" id="view-count-number">0</span> Active job views
+            </div>
+            
             <div class="live-indicator status-live" id="status-badge"><span class="live-dot" id="status-dot"></span><span id="status-text">Live</span></div>
         </div>
     </header>
@@ -178,7 +224,7 @@
             <svg class="bg-icon" style="left: 80%; animation-duration: 12s; animation-delay: 2s;" xmlns="http://www.w3.org/2000/svg" width="150" height="150" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.2 8.4c.5.38.8.97.8 1.6v10a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V10a2 2 0 0 1 .8-1.6l8-6a2 2 0 0 1 2.4 0l8 6Z"/><path d="m22 10-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 10"/></svg>
             
             <div class="hook-content">
-                <div class="hook-kicker">Free Email Alerts</div>
+                <div class="hook-kicker">Free email alerts</div>
                 <div class="hook-title">Get <span id="dynamic-town" class="highlight-town">local</span> jobs sent<br>straight to your inbox.</div>
                 
                 <div class="hook-sub">We match 5,000+ Gippslanders with local employers. Scan below to join them.</div>
@@ -188,6 +234,7 @@
                         Scan with your camera
                     </div>
                     <img src="https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=https://gippslander.com.au/alerts&margin=10&color=1a1a1a" alt="Sign Up">
+                    <div class="qr-fallback-text">or visit <strong>gippslander.com.au/alerts</strong></div>
                 </div>
             </div>
         </div>
@@ -198,7 +245,7 @@
         </div>
 
         <div class="sidebar" id="main-sidebar">
-            <h2>Sign up for Alerts</h2>
+            <h2>All job alerts</h2>
             <p>Scan to get new jobs in your area sent directly to your phone.</p>
             <svg class="bounce-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                 <rect width="20" height="16" x="2" y="4" rx="2"/>
@@ -207,6 +254,7 @@
             <div class="qr-wrapper">
                 <img src="https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=https://gippslander.com.au/alerts&margin=10&color=1a1a1a" alt="Job Alerts">
             </div>
+            <div class="qr-fallback-text" style="color: rgba(255,255,255,0.95); margin-top: 20px;">or visit <strong>gippslander.com.au/alerts</strong></div>
         </div>
     </div>
 
@@ -221,8 +269,28 @@
         let jobDisplayCounter = 0; 
         let currentTownIndex = 0;
 
+        // --- View Counter Variables ---
+        let currentViewCount = 0;
+        let viewTickTimer;
+
+        // --- Live Clock Setup ---
+        function startClock() {
+            const clockEl = document.getElementById('live-clock');
+            function tick() {
+                const now = new Date();
+                let hours = now.getHours();
+                let minutes = now.getMinutes();
+                const ampm = hours >= 12 ? 'PM' : 'AM';
+                hours = hours % 12;
+                hours = hours ? hours : 12; // Handle midnight/noon
+                minutes = minutes < 10 ? '0' + minutes : minutes;
+                clockEl.innerText = hours + ':' + minutes + ' ' + ampm;
+            }
+            tick();
+            setInterval(tick, 1000);
+        }
+
         async function initSettings() {
-            // Get URL parameter case-insensitively, default to '0'
             const urlParams = new URLSearchParams(window.location.search);
             let configId = '0';
             for (const [key, value] of urlParams) {
@@ -234,13 +302,11 @@
             const CACHE_KEY = `gipps_config_${configId}`;
 
             try {
-                // 1. Fetch live config
                 const configRes = await fetch(`config.json?t=${new Date().getTime()}`);
                 if (!configRes.ok) throw new Error("Network offline or config missing");
                 
                 const configs = await configRes.json();
 
-                // If the requested ID doesn't exist, fall back to '0'
                 if (!configs[configId]) {
                     console.warn(`Config ID "${configId}" not found. Falling back to default "0".`);
                     configId = '0';
@@ -248,26 +314,17 @@
 
                 if (configs[configId]) {
                     const conf = configs[configId];
-                    console.log(`Loaded live config for ID: ${configId}`);
-                    
-                    // Cache it for offline use
                     localStorage.setItem(CACHE_KEY, JSON.stringify(conf));
-                    
                     applyConfigAndStart(conf, configId);
                 } else {
                     throw new Error("Default config '0' is missing from JSON.");
                 }
             } catch (error) {
-                // 2. Offline Fallback: Check for cached config
-                console.warn("Could not reach live config. Checking offline cache...", error);
                 const cachedConf = localStorage.getItem(CACHE_KEY);
                 
                 if (cachedConf) {
-                    console.log(`Using cached offline config for ID: ${configId}`);
                     applyConfigAndStart(JSON.parse(cachedConf), configId);
                 } else {
-                    // 3. Absolute Emergency Failsafe
-                    console.error("No cached config found. Starting with emergency hardcoded defaults.");
                     applyConfigAndStart({
                         towns: ["Gippsland"],
                         duration: 15,
@@ -279,7 +336,6 @@
         }
 
         function applyConfigAndStart(conf, configId) {
-            // Apply variables
             selectedTowns = conf.towns || ['Gippsland'];
             displayDuration = parseInt(conf.duration || 15) * 1000;
             alertFrequency = parseInt(conf.alertFreq || 5);
@@ -290,17 +346,13 @@
                 document.body.classList.remove('portrait');
             }
 
-            // Enter fullscreen if allowed by the browser
             if (!document.fullscreenElement) document.documentElement.requestFullscreen().catch(e => {});
 
-            // Start Presentation
             fetchJobs(false);
             
-            // Set up job background refresh (every 15 mins)
             clearInterval(backgroundRefreshTimer);
             backgroundRefreshTimer = setInterval(() => fetchJobs(true), 15 * 60 * 1000);
 
-            // Start background config polling
             startConfigPoll(conf, configId);
         }
 
@@ -318,8 +370,6 @@
                         const newConf = configs[configId];
                         
                         if (JSON.stringify(newConf) !== JSON.stringify(currentConf)) {
-                            console.log("Config update detected. Applying...");
-                            
                             localStorage.setItem(`gipps_config_${configId}`, JSON.stringify(newConf));
                             currentConf = newConf;
                             selectedTowns = newConf.towns || ['Gippsland'];
@@ -336,7 +386,7 @@
                         }
                     }
                 } catch (e) {
-                    console.warn("Background config check failed. Keeping current settings.");
+                    // Fail silently
                 }
             }, 30 * 60 * 1000);
         }
@@ -351,12 +401,50 @@
                 if (!isSilent) startPresentation();
             } catch (error) {
                 const cached = localStorage.getItem('gipps_cached_jobs');
-                if (cached) { jobs = JSON.parse(cached); setLiveStatus(false); if (!isSilent) startPresentation(); }
+                if (cached) { 
+                    const parsed = JSON.parse(cached);
+                    calculateTotalViews(parsed); 
+                    jobs = parsed; 
+                    setLiveStatus(false); 
+                    if (!isSilent) startPresentation(); 
+                }
             }
+        }
+
+        function calculateTotalViews(activeJobs) {
+            if (!activeJobs || activeJobs.length === 0) return;
+
+            let realTotalViews = 0;
+            activeJobs.forEach(job => {
+                realTotalViews += (job.statistics?.views_count || 0);
+            });
+
+            if (realTotalViews > currentViewCount) {
+                currentViewCount = realTotalViews;
+            }
+
+            document.getElementById('view-counter-box').style.display = 'flex';
+            document.getElementById('view-count-number').innerText = currentViewCount.toLocaleString();
+
+            clearTimeout(viewTickTimer);
+            tickViewCounter();
+        }
+
+        function tickViewCounter() {
+            const nextTick = Math.floor(Math.random() * 5000) + 3000;
+            
+            viewTickTimer = setTimeout(() => {
+                currentViewCount += Math.floor(Math.random() * 3) + 1;
+                document.getElementById('view-count-number').innerText = currentViewCount.toLocaleString();
+                tickViewCounter();
+            }, nextTick);
         }
 
         function processJobsForRotation(data) {
             const active = data.filter(j => j.title && j.final_status === 'active');
+            
+            calculateTotalViews(active);
+
             let weighted = [];
             active.forEach(j => { weighted.push(j); if (j.pin_to_top) { weighted.push(j); weighted.push(j); } else if (j.featured) weighted.push(j); });
             for (let i = weighted.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [weighted[i], weighted[j]] = [weighted[j], weighted[i]]; }
@@ -367,7 +455,7 @@
         function setLiveStatus(isLive) {
             document.getElementById('status-badge').className = isLive ? 'live-indicator status-live' : 'live-indicator status-offline';
             document.getElementById('status-dot').className = isLive ? 'live-dot' : 'offline-dot';
-            document.getElementById('status-text').innerText = isLive ? 'Live' : 'Offline (Cached)';
+            document.getElementById('status-text').innerText = isLive ? 'Live' : 'Offline (cached)';
         }
 
         function startPresentation() { if(jobs.length > 0) { currentIndex = 0; jobDisplayCounter = 0; renderJob(); startTimer(); } }
@@ -423,10 +511,13 @@
             document.getElementById('main-sidebar').style.display = 'flex';
             
             const job = jobs[currentIndex];
-            const logo = job.employer?.logo ? `<img src="${job.employer.logo}" class="company-logo">` : '';
+            // Added onerror failsafe to gracefully hide broken employer logos
+            const logo = job.employer?.logo ? `<img src="${job.employer.logo}" class="company-logo" onerror="this.style.display='none'">` : '';
             const location = (job.location || '').replace(/,\s*Victoria,\s*Australia/i, '');
             const cleanDesc = (job.description || '').replace(/<[^>]*>/g, '');
             const shortDesc = cleanDesc.length > 250 ? cleanDesc.substring(0, 250) + '...' : cleanDesc;
+            
+            const jobUrl = job.url || `https://gippslander.com.au/jobs/${job.id || ''}`;
             
             let isNewlyListed = false;
             const jobDateStr = job.created_at || job.published_at || job.date; 
@@ -445,6 +536,7 @@
             const starSvg = `<svg stroke="currentColor" fill="none" stroke-width="2.5" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>`;
             const clockSvg = `<svg stroke="currentColor" fill="none" stroke-width="2.5" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>`;
             const locationSvg = `<svg stroke="currentColor" fill="none" stroke-width="2.5" viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>`;
+            const qrScanSvg = `<svg stroke="currentColor" fill="none" stroke-width="2.5" viewBox="0 0 24 24"><path d="M3 7V5a2 2 0 0 1 2-2h2"/><path d="M17 3h2a2 2 0 0 1 2 2v2"/><path d="M21 17v2a2 2 0 0 1-2 2h-2"/><path d="M7 21H5a2 2 0 0 1-2-2v-2"/></svg>`;
 
             let badges = '';
             
@@ -455,7 +547,7 @@
             }
 
             if (isNewlyListed) {
-                badges += `<span class="badge animate-stagger delay-5" style="background:#e8f5e9; border-color:#81c784; color:#1b5e20;">${clockSvg} Newly Listed</span>`;
+                badges += `<span class="badge animate-stagger delay-5" style="background:#e8f5e9; border-color:#81c784; color:#1b5e20;">${clockSvg} Newly listed</span>`;
             }
 
             const applies = job.statistics?.applies_count || 0;
@@ -464,23 +556,34 @@
             if (applies >= 5) {
                 badges += `<span class="badge animate-stagger delay-5" style="background:#fff3e0; border-color:#ffb74d; color:#e65100;">${flameSvg} ${applies} applied</span>`;
             } else if (applies > 0) {
-                badges += `<span class="badge animate-stagger delay-5" style="background:#fff3e0; border-color:#ffb74d; color:#e65100;">${flameSvg} Fast Moving</span>`;
+                badges += `<span class="badge animate-stagger delay-5" style="background:#fff3e0; border-color:#ffb74d; color:#e65100;">${flameSvg} Fast moving</span>`;
             } else if (views >= 25) {
                 badges += `<span class="badge animate-stagger delay-5" style="background:#e3f2fd; border-color:#64b5f6; color:#0d47a1;">${eyeSvg} ${views} people viewing</span>`;
             } else if (views >= 10) {
                 badges += `<span class="badge animate-stagger delay-5" style="background:#e3f2fd; border-color:#64b5f6; color:#0d47a1;">${eyeSvg} Popular</span>`;
             }
 
+            const displayCategory = job.category?.name || 'General';
+            const displayEmployer = job.employer?.name || 'Local employer';
+
             document.getElementById('job-display').innerHTML = `
                 <div class="job-card">
-                    <div class="job-category animate-stagger delay-1">${job.category?.name || 'General'}</div>
+                    <div class="job-category animate-stagger delay-1">${displayCategory}</div>
                     <h2 class="job-title animate-stagger delay-2">${job.title}</h2>
-                    <h3 class="job-company animate-stagger delay-3">${logo} ${job.employer?.name || 'Local Employer'}</h3>
+                    <h3 class="job-company animate-stagger delay-3">${logo} ${displayEmployer}</h3>
                     <div class="job-details">
                         <span class="badge animate-stagger delay-4" style="color:var(--primary-color); border-color:var(--primary-color);">${locationSvg} ${location}</span>
                         ${badges}
                     </div>
-                    <div class="job-description animate-stagger delay-5">"${shortDesc}"</div>
+                    
+                    <div class="job-content-split">
+                        <div class="job-description animate-stagger delay-5">"${shortDesc}"</div>
+                        <div class="job-specific-qr animate-stagger delay-5">
+                            <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(jobUrl)}&margin=5&color=1a1a1a" alt="Apply QR">
+                            <div class="qr-label">${qrScanSvg} Scan to apply</div>
+                            <div class="qr-fallback-text">gippslander.com.au/jobs</div>
+                        </div>
+                    </div>
                 </div>
             `;
 
@@ -490,7 +593,8 @@
             setTimeout(() => { progressBar.style.transition = `width ${displayDuration}ms linear`; progressBar.style.width = '100%'; }, 50);
         }
 
-        // Initialize!
+        // Initialize clock and settings
+        startClock();
         initSettings();
     </script>
 </body>
