@@ -38,6 +38,16 @@
             100% { transform: translate(0px, 0px); }
         }
 
+        /* --- DIRECTIONAL MICRO-INTERACTION --- */
+        @keyframes shoveRight {
+            0%, 100% { transform: translateX(0); }
+            50% { transform: translateX(8px); }
+        }
+        .animated-arrow {
+            animation: shoveRight 1.2s infinite cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            color: var(--primary-color);
+        }
+
         body, html {
             margin: 0;
             padding: 0;
@@ -168,8 +178,15 @@
         @keyframes floatLogo { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-3px); } }
 
         .job-details { display: flex; flex-wrap: wrap; gap: 1.5vmin; margin-bottom: 3vh; }
+        
+        /* High-Contrast FOMO Badges */
         .badge { background-color: #f8f9fa; padding: 1.2vh 1.5vw; border-radius: 50px; border: 1.5px solid #e0e0e0; display: flex; align-items: center; gap: 8px; font-weight: 700; color: #444; font-size: clamp(1rem, 1.8vmin, 1.4rem); }
         .badge svg { width: clamp(20px, 2.5vmin, 26px); height: auto; }
+        
+        .badge-urgent { background-color: #ff3b30 !important; color: #ffffff !important; border-color: #ff3b30 !important; box-shadow: 0 4px 15px rgba(255, 59, 48, 0.4); animation: pulse-badge 2s infinite; }
+        .badge-warning { background-color: #ff9800 !important; color: #ffffff !important; border-color: #ff9800 !important; box-shadow: 0 4px 15px rgba(255, 152, 0, 0.4); }
+        
+        @keyframes pulse-badge { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
 
         /* Inner Layout for Job Description and Specific QR */
         .job-content-split { display: flex; gap: 4vmin; align-items: stretch; border-top: 2px dashed #eee; padding-top: 3vh;}
@@ -177,8 +194,8 @@
         
         .job-specific-qr { display: flex; flex-direction: column; align-items: center; justify-content: center; background: #f4f6f9; padding: 2vmin; border-radius: 15px; border: 1.5px solid #e0e0e0; min-width: 180px;}
         .job-specific-qr canvas, .job-specific-qr img { width: clamp(100px, 15vmin, 160px) !important; height: auto !important; margin-bottom: 1vh; mix-blend-mode: multiply;}
-        .job-specific-qr .qr-label { font-size: clamp(0.9rem, 1.5vmin, 1.2rem); font-weight: 700; color: var(--primary-color); display: flex; align-items: center; gap: 5px; text-align: center;}
-        .job-specific-qr .qr-label svg { width: clamp(16px, 2vmin, 20px); height: auto; }
+        .job-specific-qr .qr-label { font-size: clamp(0.9rem, 1.5vmin, 1.2rem); font-weight: 800; color: var(--primary-color); display: flex; align-items: center; gap: 8px; text-align: center;}
+        .job-specific-qr .qr-label svg { width: clamp(18px, 2vmin, 24px); height: auto; }
         .job-specific-qr .qr-fallback-text { font-size: clamp(0.8rem, 1.2vmin, 1rem); margin-top: 5px; color: #888; font-weight: 600; }
 
         /* --- Right Sidebar --- */
@@ -243,7 +260,7 @@
                 <div class="hook-sub">We match 5,000+ Gippslanders with local employers. Scan below to join them.</div>
                 <div class="hook-qr-box">
                     <div class="hook-qr-text">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                        <svg class="animated-arrow" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
                         Scan with your camera
                     </div>
                     <div id="interstitial-qr-box"></div>
@@ -499,10 +516,6 @@
         }
 
         function setLiveStatus(isLive) {
-            // The text will always say 'Live', regardless of connection status
-            document.getElementById('status-text').innerText = 'Live';
-            
-            // The badge and dot quietly switch from red to orange if offline
             document.getElementById('status-badge').className = isLive ? 'live-indicator status-live' : 'live-indicator status-offline';
             document.getElementById('status-dot').className = isLive ? 'live-dot' : 'offline-dot';
         }
@@ -568,24 +581,39 @@
             const rawJobUrl = job.job_details_url || `https://gippslander.com.au/jobs/${job.id || ''}`;
             const trackedJobUrl = buildTrackingUrl(rawJobUrl);
             
+            // --- FOMO DATE MATH ---
             let isNewlyListed = false;
+            let isClosingSoon = false;
+            const today = new Date();
+            
             const jobDateStr = job.created_at || job.published_at || job.date; 
             if (jobDateStr) {
                 try {
                     const posted = new Date(jobDateStr);
-                    const today = new Date();
                     const daysOld = (today - posted) / (1000 * 60 * 60 * 24);
                     if (daysOld <= 7 && daysOld >= 0) isNewlyListed = true;
                 } catch(e) {}
             }
+
+            // Look for Expiry Date (checking common property names)
+            const expiryDateStr = job.expires_at || job.valid_through || job.closing_date || job.expiry_date;
+            if (expiryDateStr) {
+                try {
+                    const expiry = new Date(expiryDateStr);
+                    const daysLeft = (expiry - today) / (1000 * 60 * 60 * 24);
+                    // If it closes in 5 days or less, trigger the high-contrast badge
+                    if (daysLeft <= 5 && daysLeft > 0) isClosingSoon = true;
+                } catch(e) {}
+            }
             
+            const alertCircleSvg = `<svg stroke="currentColor" fill="none" stroke-width="2.5" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>`;
             const flameSvg = `<svg stroke="currentColor" fill="none" stroke-width="2.5" viewBox="0 0 24 24"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></svg>`;
             const eyeSvg = `<svg stroke="currentColor" fill="none" stroke-width="2.5" viewBox="0 0 24 24"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>`;
             const pinSvg = `<svg stroke="currentColor" fill="none" stroke-width="2.5" viewBox="0 0 24 24"><line x1="12" y1="17" x2="12" y2="22"/><path d="M5 17h14v-1.59a2 2 0 0 0-.59-1.42l-1.83-1.83c-.38-.38-.59-.88-.59-1.42V6a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v4.74c0 .54-.21 1.04-.59 1.42l-1.83 1.83A2 2 0 0 0 5 15.41Z"/></svg>`;
             const starSvg = `<svg stroke="currentColor" fill="none" stroke-width="2.5" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>`;
             const clockSvg = `<svg stroke="currentColor" fill="none" stroke-width="2.5" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>`;
             const locationSvg = `<svg stroke="currentColor" fill="none" stroke-width="2.5" viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>`;
-            const qrScanSvg = `<svg stroke="currentColor" fill="none" stroke-width="2.5" viewBox="0 0 24 24"><path d="M3 7V5a2 2 0 0 1 2-2h2"/><path d="M17 3h2a2 2 0 0 1 2 2v2"/><path d="M21 17v2a2 2 0 0 1-2 2h-2"/><path d="M7 21H5a2 2 0 0 1-2-2v-2"/></svg>`;
+            const qrScanSvg = `<svg class="animated-arrow" stroke="currentColor" fill="none" stroke-width="3" viewBox="0 0 24 24"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>`;
 
             let badges = '';
             
@@ -595,7 +623,10 @@
                 badges += `<span class="badge animate-stagger delay-4" style="background:#fffde7; border-color:#fff59d; color:#fbc02d;">${starSvg} Featured</span>`;
             }
 
-            if (isNewlyListed) {
+            if (isClosingSoon) {
+                // High-contrast deep red pulsating badge
+                badges += `<span class="badge badge-urgent animate-stagger delay-5">${alertCircleSvg} Closing soon</span>`;
+            } else if (isNewlyListed) {
                 badges += `<span class="badge animate-stagger delay-5" style="background:#e8f5e9; border-color:#81c784; color:#1b5e20;">${clockSvg} Newly listed</span>`;
             }
 
@@ -603,9 +634,10 @@
             const views = job.statistics?.views_count || 0;
 
             if (applies >= 5) {
-                badges += `<span class="badge animate-stagger delay-5" style="background:#fff3e0; border-color:#ffb74d; color:#e65100;">${flameSvg} ${applies} applied</span>`;
+                // High-contrast bright orange warning badge
+                badges += `<span class="badge badge-warning animate-stagger delay-5">${flameSvg} ${applies} applied</span>`;
             } else if (applies > 0) {
-                badges += `<span class="badge animate-stagger delay-5" style="background:#fff3e0; border-color:#ffb74d; color:#e65100;">${flameSvg} Fast moving</span>`;
+                badges += `<span class="badge badge-warning animate-stagger delay-5">${flameSvg} Fast moving</span>`;
             } else if (views >= 25) {
                 badges += `<span class="badge animate-stagger delay-5" style="background:#e3f2fd; border-color:#64b5f6; color:#0d47a1;">${eyeSvg} ${views} people viewing</span>`;
             } else if (views >= 10) {
