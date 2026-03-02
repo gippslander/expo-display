@@ -94,12 +94,16 @@
         .view-counter svg { width: 22px; height: 22px; }
         .counter-number { font-variant-numeric: tabular-nums; letter-spacing: 0.5px; }
 
-        .live-indicator { display: flex; align-items: center; gap: 10px; font-weight: 900; font-size: 1.5rem; letter-spacing: 1px; }
+        .live-indicator { display: flex; align-items: center; gap: 10px; font-weight: 900; font-size: 1.5rem; letter-spacing: 1px; transition: color 0.3s ease; }
         .status-live { color: var(--live-color); }
         .status-offline { color: var(--offline-color); }
-        .live-dot { width: 16px; height: 16px; border-radius: 50%; background-color: var(--live-color); animation: pulse-live 1.5s infinite; }
-        .offline-dot { width: 16px; height: 16px; border-radius: 50%; background-color: var(--offline-color); }
+        
+        /* Secret Offline Indicator Dots */
+        .live-dot { width: 16px; height: 16px; border-radius: 50%; background-color: var(--live-color); animation: pulse-live 1.5s infinite; transition: background-color 0.3s ease;}
+        .offline-dot { width: 16px; height: 16px; border-radius: 50%; background-color: var(--offline-color); animation: pulse-offline 1.5s infinite; transition: background-color 0.3s ease;}
+        
         @keyframes pulse-live { 0% { box-shadow: 0 0 0 0 rgba(255, 59, 48, 0.7); } 70% { box-shadow: 0 0 0 12px rgba(255, 59, 48, 0); } 100% { box-shadow: 0 0 0 0 rgba(255, 59, 48, 0); } }
+        @keyframes pulse-offline { 0% { box-shadow: 0 0 0 0 rgba(255, 202, 40, 0.7); } 70% { box-shadow: 0 0 0 12px rgba(255, 202, 40, 0); } 100% { box-shadow: 0 0 0 0 rgba(255, 202, 40, 0); } }
 
         /* --- BASE LAYOUT (LANDSCAPE) --- */
         .content-wrapper { display: flex; flex: 1; padding: 30px 40px; gap: 30px; min-height: 0; position: relative; flex-direction: row; align-items: stretch; justify-content: center;}
@@ -142,7 +146,6 @@
             animation: popIn 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) backwards; animation-delay: 0.7s;
         }
         
-        /* Updated QR CSS to target locally generated canvas/img elements */
         .hook-qr-box canvas, .hook-qr-box img { height: clamp(150px, 32vh, 320px) !important; width: auto !important; margin-bottom: 0px; }
         .hook-qr-text { color: var(--text-main); font-weight: 800; font-size: clamp(1.2rem, 2.5vmin, 1.8rem); display: flex; align-items: center; gap: 10px; margin-bottom: 0px;}
         .hook-qr-text svg { width: clamp(20px, 3vmin, 28px); height: auto;}
@@ -283,14 +286,13 @@
         let currentViewCount = 0;
         let viewTickTimer;
 
-        // --- LOCAL QR CODE GENERATOR UTILITY ---
         function generateLocalQR(elementId, url) {
             const container = document.getElementById(elementId);
             if (!container) return;
-            container.innerHTML = ''; // Clear previous QR
+            container.innerHTML = ''; 
             new QRCode(container, {
                 text: url,
-                width: 350,  // Render large, CSS scales it down cleanly
+                width: 350,  
                 height: 350,
                 colorDark : "#1a1a1a",
                 colorLight : "#ffffff",
@@ -298,7 +300,6 @@
             });
         }
 
-        // --- UTM Tracking Helper ---
         function buildTrackingUrl(baseLink) {
             try {
                 const url = new URL(baseLink);
@@ -383,7 +384,6 @@
                 document.body.classList.remove('portrait');
             }
 
-            // Generate the local offline QR codes for global alerts
             const trackedAlertsUrl = buildTrackingUrl('https://gippslander.com.au/alerts');
             generateLocalQR('interstitial-qr-box', trackedAlertsUrl);
             generateLocalQR('sidebar-qr-box', trackedAlertsUrl);
@@ -499,9 +499,12 @@
         }
 
         function setLiveStatus(isLive) {
+            // The text will always say 'Live', regardless of connection status
+            document.getElementById('status-text').innerText = 'Live';
+            
+            // The badge and dot quietly switch from red to orange if offline
             document.getElementById('status-badge').className = isLive ? 'live-indicator status-live' : 'live-indicator status-offline';
             document.getElementById('status-dot').className = isLive ? 'live-dot' : 'offline-dot';
-            document.getElementById('status-text').innerText = isLive ? 'Live' : 'Offline (cached)';
         }
 
         function startPresentation() { if(jobs.length > 0) { currentIndex = 0; jobDisplayCounter = 0; renderJob(); startTimer(); } }
@@ -562,7 +565,6 @@
             const cleanDesc = (job.description || '').replace(/<[^>]*>/g, '');
             const shortDesc = cleanDesc.length > 250 ? cleanDesc.substring(0, 250) + '...' : cleanDesc;
             
-            // Generate Job Specific URL mapped exactly to job_details_url
             const rawJobUrl = job.job_details_url || `https://gippslander.com.au/jobs/${job.id || ''}`;
             const trackedJobUrl = buildTrackingUrl(rawJobUrl);
             
@@ -634,7 +636,6 @@
                 </div>
             `;
             
-            // Render the local QR code immediately after injecting the HTML
             generateLocalQR('current-job-qr', trackedJobUrl);
 
             const progressBar = document.getElementById('progress');
