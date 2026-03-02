@@ -8,6 +8,8 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 
     <style>
         :root {
@@ -102,6 +104,14 @@
         /* --- BASE LAYOUT (LANDSCAPE) --- */
         .content-wrapper { display: flex; flex: 1; padding: 30px 40px; gap: 30px; min-height: 0; position: relative; flex-direction: row; align-items: stretch; justify-content: center;}
 
+        /* --- TEXT URL FALLBACKS --- */
+        .qr-fallback-text {
+            font-size: 1rem;
+            color: var(--text-muted);
+            margin-top: 15px;
+            font-weight: 500;
+        }
+
         /* --- THE EMAIL ALERTS TAKEOVER SCREEN --- */
         #interstitial-view {
             display: none; position: absolute; 
@@ -131,7 +141,9 @@
             display: flex; flex-direction: column; align-items: center; gap: 1vh;
             animation: popIn 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) backwards; animation-delay: 0.7s;
         }
-        .hook-qr-box img { height: clamp(150px, 32vh, 320px); width: auto; margin-bottom: 0px; }
+        
+        /* Updated QR CSS to target locally generated canvas/img elements */
+        .hook-qr-box canvas, .hook-qr-box img { height: clamp(150px, 32vh, 320px) !important; width: auto !important; margin-bottom: 0px; }
         .hook-qr-text { color: var(--text-main); font-weight: 800; font-size: clamp(1.2rem, 2.5vmin, 1.8rem); display: flex; align-items: center; gap: 10px; margin-bottom: 0px;}
         .hook-qr-text svg { width: clamp(20px, 3vmin, 28px); height: auto;}
         .hook-qr-box .qr-fallback-text { font-size: clamp(0.9rem, 1.8vmin, 1.3rem); margin-top: 5px; color: var(--text-muted); font-weight: 600;}
@@ -161,7 +173,7 @@
         .job-description { flex: 1; font-size: clamp(1.3rem, 2.2vmin, 1.8rem); color: #666; line-height: 1.6; display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden; font-weight: 400;}
         
         .job-specific-qr { display: flex; flex-direction: column; align-items: center; justify-content: center; background: #f4f6f9; padding: 2vmin; border-radius: 15px; border: 1.5px solid #e0e0e0; min-width: 180px;}
-        .job-specific-qr img { width: clamp(100px, 15vmin, 160px); height: auto; margin-bottom: 1vh; mix-blend-mode: multiply;}
+        .job-specific-qr canvas, .job-specific-qr img { width: clamp(100px, 15vmin, 160px) !important; height: auto !important; margin-bottom: 1vh; mix-blend-mode: multiply;}
         .job-specific-qr .qr-label { font-size: clamp(0.9rem, 1.5vmin, 1.2rem); font-weight: 700; color: var(--primary-color); display: flex; align-items: center; gap: 5px; text-align: center;}
         .job-specific-qr .qr-label svg { width: clamp(16px, 2vmin, 20px); height: auto; }
         .job-specific-qr .qr-fallback-text { font-size: clamp(0.8rem, 1.2vmin, 1rem); margin-top: 5px; color: #888; font-weight: 600; }
@@ -177,7 +189,7 @@
         @keyframes bounce { 0%, 20%, 50%, 80%, 100% { transform: translateY(0); } 40% { transform: translateY(-15px); } 60% { transform: translateY(-7px); } }
         
         .qr-wrapper { background: white; padding: 2.5vmin; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); position: relative; z-index: 2; width: 80%; max-width: 320px; display: flex; justify-content: center; align-items: center; animation: heartbeat 5s infinite;}
-        .qr-wrapper img { width: 100%; height: auto; display: block; }
+        .qr-wrapper canvas, .qr-wrapper img { width: 100% !important; height: auto !important; display: block; }
         .sidebar .qr-fallback-text { font-size: clamp(1rem, 1.8vmin, 1.4rem); color: rgba(255,255,255,0.95); margin-top: 2vh; font-weight: 500; position: relative; z-index: 2; }
 
         /* --- Progress Bar --- */
@@ -192,11 +204,11 @@
         body.portrait .job-container { flex: 1.7; padding: 40px; }
         body.portrait .sidebar { flex: 1; padding: 30px; }
         body.portrait .qr-wrapper { max-width: 200px; }
-        body.portrait .hook-qr-box img { height: auto; width: clamp(150px, 20vw, 250px); }
+        body.portrait .hook-qr-box canvas, body.portrait .hook-qr-box img { height: auto !important; width: clamp(150px, 20vw, 250px) !important; }
         body.portrait .bounce-icon { width: 40px; margin-bottom: 10px; }
         body.portrait .job-content-split { flex-direction: column; align-items: flex-start; gap: 15px; }
         body.portrait .job-specific-qr { flex-direction: row; gap: 15px; width: 100%; justify-content: flex-start; padding: 10px;}
-        body.portrait .job-specific-qr img { width: 80px; height: 80px; margin-bottom: 0;}
+        body.portrait .job-specific-qr canvas, body.portrait .job-specific-qr img { width: 80px !important; height: 80px !important; margin-bottom: 0 !important;}
 
     </style>
 </head>
@@ -231,7 +243,7 @@
                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
                         Scan with your camera
                     </div>
-                    <img id="interstitial-qr-img" src="" alt="Sign Up">
+                    <div id="interstitial-qr-box"></div>
                     <div class="qr-fallback-text">or visit <strong>gippslander.com.au/alerts</strong></div>
                 </div>
             </div>
@@ -250,7 +262,7 @@
                 <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/>
             </svg>
             <div class="qr-wrapper">
-                <img id="sidebar-qr-img" src="" alt="Job Alerts">
+                <div id="sidebar-qr-box"></div>
             </div>
             <div class="qr-fallback-text">or visit <strong>gippslander.com.au/alerts</strong></div>
         </div>
@@ -266,10 +278,37 @@
         let slideTimer, backgroundRefreshTimer, townCycleInterval, configPollTimer;
         let jobDisplayCounter = 0; 
         let currentTownIndex = 0;
-        let currentConfigName = 'Default_Screen'; // Stores config name for UTM Campaign
+        let currentConfigName = 'Default_Screen'; 
 
         let currentViewCount = 0;
         let viewTickTimer;
+
+        // --- LOCAL QR CODE GENERATOR UTILITY ---
+        function generateLocalQR(elementId, url) {
+            const container = document.getElementById(elementId);
+            if (!container) return;
+            container.innerHTML = ''; // Clear previous QR
+            new QRCode(container, {
+                text: url,
+                width: 350,  // Render large, CSS scales it down cleanly
+                height: 350,
+                colorDark : "#1a1a1a",
+                colorLight : "#ffffff",
+                correctLevel : QRCode.CorrectLevel.M
+            });
+        }
+
+        // --- UTM Tracking Helper ---
+        function buildTrackingUrl(baseLink) {
+            try {
+                const url = new URL(baseLink);
+                url.searchParams.set('utm_source', 'digital_sign');
+                url.searchParams.set('utm_campaign', currentConfigName);
+                return url.toString();
+            } catch(e) {
+                return baseLink; 
+            }
+        }
 
         function startClock() {
             const clockEl = document.getElementById('live-clock');
@@ -285,18 +324,6 @@
             }
             tick();
             setInterval(tick, 1000);
-        }
-
-        // --- UTM Tracking Helper ---
-        function buildTrackingUrl(baseLink) {
-            try {
-                const url = new URL(baseLink);
-                url.searchParams.set('utm_source', 'digital_sign');
-                url.searchParams.set('utm_campaign', currentConfigName);
-                return url.toString();
-            } catch(e) {
-                return baseLink; // Failsafe if URL is malformed
-            }
         }
 
         async function initSettings() {
@@ -348,7 +375,7 @@
             selectedTowns = conf.towns || ['Gippsland'];
             displayDuration = parseInt(conf.duration || 15) * 1000;
             alertFrequency = parseInt(conf.alertFreq || 5);
-            currentConfigName = conf.name || `Screen_${configId}`; // Capture campaign name for UTMs
+            currentConfigName = conf.name || `Screen_${configId}`; 
             
             if (conf.orientation === 'portrait') {
                 document.body.classList.add('portrait');
@@ -356,10 +383,10 @@
                 document.body.classList.remove('portrait');
             }
 
-            // Generate the global Generic Alert QR Codes with correct UTMs
+            // Generate the local offline QR codes for global alerts
             const trackedAlertsUrl = buildTrackingUrl('https://gippslander.com.au/alerts');
-            document.getElementById('interstitial-qr-img').src = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(trackedAlertsUrl)}&margin=10&color=1a1a1a`;
-            document.getElementById('sidebar-qr-img').src = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(trackedAlertsUrl)}&margin=10&color=1a1a1a`;
+            generateLocalQR('interstitial-qr-box', trackedAlertsUrl);
+            generateLocalQR('sidebar-qr-box', trackedAlertsUrl);
 
             if (!document.fullscreenElement) document.documentElement.requestFullscreen().catch(e => {});
 
@@ -398,10 +425,9 @@
                                 document.body.classList.remove('portrait');
                             }
 
-                            // Silently update background QRs if campaign name changed
                             const trackedAlertsUrl = buildTrackingUrl('https://gippslander.com.au/alerts');
-                            document.getElementById('interstitial-qr-img').src = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(trackedAlertsUrl)}&margin=10&color=1a1a1a`;
-                            document.getElementById('sidebar-qr-img').src = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(trackedAlertsUrl)}&margin=10&color=1a1a1a`;
+                            generateLocalQR('interstitial-qr-box', trackedAlertsUrl);
+                            generateLocalQR('sidebar-qr-box', trackedAlertsUrl);
                             
                             fetchJobs(true);
                         }
@@ -536,7 +562,7 @@
             const cleanDesc = (job.description || '').replace(/<[^>]*>/g, '');
             const shortDesc = cleanDesc.length > 250 ? cleanDesc.substring(0, 250) + '...' : cleanDesc;
             
-            // Generate Job Specific URL with UTM Tracking parameters appended
+            // Generate Job Specific URL mapped exactly to job_details_url
             const rawJobUrl = job.job_details_url || `https://gippslander.com.au/jobs/${job.id || ''}`;
             const trackedJobUrl = buildTrackingUrl(rawJobUrl);
             
@@ -600,13 +626,16 @@
                     <div class="job-content-split">
                         <div class="job-description animate-stagger delay-5">"${shortDesc}"</div>
                         <div class="job-specific-qr animate-stagger delay-5">
-                            <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(trackedJobUrl)}&margin=5&color=1a1a1a" alt="Apply QR">
+                            <div id="current-job-qr"></div>
                             <div class="qr-label">${qrScanSvg} Scan to apply</div>
                             <div class="qr-fallback-text">gippslander.com.au/jobs</div>
                         </div>
                     </div>
                 </div>
             `;
+            
+            // Render the local QR code immediately after injecting the HTML
+            generateLocalQR('current-job-qr', trackedJobUrl);
 
             const progressBar = document.getElementById('progress');
             progressBar.style.transition = 'none';
