@@ -344,7 +344,6 @@
             setInterval(tick, 1000);
         }
 
-        // --- DYNAMIC SIDEBAR HEADING LOGIC ---
         function updateSidebarHeading() {
             let displayTown = 'local';
             if (selectedTowns.length === 1 && selectedTowns[0].toLowerCase() !== 'gippsland') {
@@ -649,7 +648,8 @@
             if (applies >= 5) {
                 badges += `<span class="badge badge-warning animate-stagger delay-5">${flameSvg} ${applies} applied</span>`;
             } else if (applies > 0) {
-                badges += `<span class="badge badge-warning animate-stagger delay-5">${flameSvg} Fast moving</span>`;
+                // Changed "Fast moving" to "Be an early applicant" and swapped the flame for a star.
+                badges += `<span class="badge badge-warning animate-stagger delay-5">${starSvg} Be an early applicant</span>`;
             } else if (views >= 25) {
                 badges += `<span class="badge animate-stagger delay-5" style="background:#e3f2fd; border-color:#64b5f6; color:#0d47a1;">${eyeSvg} ${views} people viewing</span>`;
             } else if (views >= 10) {
