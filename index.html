@@ -117,7 +117,6 @@
 
         .hook-content { z-index: 2; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; width: 100%; }
         
-        /* THE MAGIC VMIN SIZING: Grows massively but respects height and width constraints perfectly */
         .hook-kicker { font-size: clamp(1.2rem, 3vmin, 2rem); font-weight: 800; letter-spacing: 3px; color: white; opacity: 0.9; margin-bottom: 1.5vh; text-transform: uppercase; animation: popIn 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) backwards; animation-delay: 0.1s;}
         .hook-title { font-size: clamp(2.8rem, 7.5vmin, 6rem); font-weight: 900; margin-bottom: 2vh; line-height: 1.1; text-shadow: 2px 4px 10px rgba(0,0,0,0.3); animation: popIn 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) backwards; animation-delay: 0.3s; }
         .hook-sub { font-size: clamp(1.1rem, 2.5vmin, 1.8rem); margin-bottom: 4vh; opacity: 0.95; font-weight: 500; max-width: 85%; animation: popIn 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) backwards; animation-delay: 0.5s; line-height: 1.4;}
@@ -132,7 +131,6 @@
             display: flex; flex-direction: column; align-items: center; gap: 1vh;
             animation: popIn 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) backwards; animation-delay: 0.7s;
         }
-        /* Lock QR image height to safe viewport percentages so it never breaks the box */
         .hook-qr-box img { height: clamp(150px, 32vh, 320px); width: auto; margin-bottom: 0px; }
         .hook-qr-text { color: var(--text-main); font-weight: 800; font-size: clamp(1.2rem, 2.5vmin, 1.8rem); display: flex; align-items: center; gap: 10px; margin-bottom: 0px;}
         .hook-qr-text svg { width: clamp(20px, 3vmin, 28px); height: auto;}
@@ -233,7 +231,7 @@
                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
                         Scan with your camera
                     </div>
-                    <img src="https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=https://gippslander.com.au/alerts&margin=10&color=1a1a1a" alt="Sign Up">
+                    <img id="interstitial-qr-img" src="" alt="Sign Up">
                     <div class="qr-fallback-text">or visit <strong>gippslander.com.au/alerts</strong></div>
                 </div>
             </div>
@@ -252,7 +250,7 @@
                 <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/>
             </svg>
             <div class="qr-wrapper">
-                <img src="https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=https://gippslander.com.au/alerts&margin=10&color=1a1a1a" alt="Job Alerts">
+                <img id="sidebar-qr-img" src="" alt="Job Alerts">
             </div>
             <div class="qr-fallback-text">or visit <strong>gippslander.com.au/alerts</strong></div>
         </div>
@@ -268,6 +266,7 @@
         let slideTimer, backgroundRefreshTimer, townCycleInterval, configPollTimer;
         let jobDisplayCounter = 0; 
         let currentTownIndex = 0;
+        let currentConfigName = 'Default_Screen'; // Stores config name for UTM Campaign
 
         let currentViewCount = 0;
         let viewTickTimer;
@@ -286,6 +285,18 @@
             }
             tick();
             setInterval(tick, 1000);
+        }
+
+        // --- UTM Tracking Helper ---
+        function buildTrackingUrl(baseLink) {
+            try {
+                const url = new URL(baseLink);
+                url.searchParams.set('utm_source', 'digital_sign');
+                url.searchParams.set('utm_campaign', currentConfigName);
+                return url.toString();
+            } catch(e) {
+                return baseLink; // Failsafe if URL is malformed
+            }
         }
 
         async function initSettings() {
@@ -323,6 +334,7 @@
                     applyConfigAndStart(JSON.parse(cachedConf), configId);
                 } else {
                     applyConfigAndStart({
+                        name: "Emergency_Fallback",
                         towns: ["Gippsland"],
                         duration: 15,
                         alertFreq: 5,
@@ -336,12 +348,18 @@
             selectedTowns = conf.towns || ['Gippsland'];
             displayDuration = parseInt(conf.duration || 15) * 1000;
             alertFrequency = parseInt(conf.alertFreq || 5);
+            currentConfigName = conf.name || `Screen_${configId}`; // Capture campaign name for UTMs
             
             if (conf.orientation === 'portrait') {
                 document.body.classList.add('portrait');
             } else {
                 document.body.classList.remove('portrait');
             }
+
+            // Generate the global Generic Alert QR Codes with correct UTMs
+            const trackedAlertsUrl = buildTrackingUrl('https://gippslander.com.au/alerts');
+            document.getElementById('interstitial-qr-img').src = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(trackedAlertsUrl)}&margin=10&color=1a1a1a`;
+            document.getElementById('sidebar-qr-img').src = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(trackedAlertsUrl)}&margin=10&color=1a1a1a`;
 
             if (!document.fullscreenElement) document.documentElement.requestFullscreen().catch(e => {});
 
@@ -372,12 +390,18 @@
                             selectedTowns = newConf.towns || ['Gippsland'];
                             displayDuration = parseInt(newConf.duration || 15) * 1000;
                             alertFrequency = parseInt(newConf.alertFreq || 5);
+                            currentConfigName = newConf.name || `Screen_${configId}`;
                             
                             if (newConf.orientation === 'portrait') {
                                 document.body.classList.add('portrait');
                             } else {
                                 document.body.classList.remove('portrait');
                             }
+
+                            // Silently update background QRs if campaign name changed
+                            const trackedAlertsUrl = buildTrackingUrl('https://gippslander.com.au/alerts');
+                            document.getElementById('interstitial-qr-img').src = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(trackedAlertsUrl)}&margin=10&color=1a1a1a`;
+                            document.getElementById('sidebar-qr-img').src = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(trackedAlertsUrl)}&margin=10&color=1a1a1a`;
                             
                             fetchJobs(true);
                         }
@@ -512,7 +536,9 @@
             const cleanDesc = (job.description || '').replace(/<[^>]*>/g, '');
             const shortDesc = cleanDesc.length > 250 ? cleanDesc.substring(0, 250) + '...' : cleanDesc;
             
-            const jobUrl = job.url || `https://gippslander.com.au/jobs/${job.id || ''}`;
+            // Generate Job Specific URL with UTM Tracking parameters appended
+            const rawJobUrl = job.job_details_url || `https://gippslander.com.au/jobs/${job.id || ''}`;
+            const trackedJobUrl = buildTrackingUrl(rawJobUrl);
             
             let isNewlyListed = false;
             const jobDateStr = job.created_at || job.published_at || job.date; 
@@ -574,7 +600,7 @@
                     <div class="job-content-split">
                         <div class="job-description animate-stagger delay-5">"${shortDesc}"</div>
                         <div class="job-specific-qr animate-stagger delay-5">
-                            <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(jobUrl)}&margin=5&color=1a1a1a" alt="Apply QR">
+                            <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(trackedJobUrl)}&margin=5&color=1a1a1a" alt="Apply QR">
                             <div class="qr-label">${qrScanSvg} Scan to apply</div>
                             <div class="qr-fallback-text">gippslander.com.au/jobs</div>
                         </div>
