@@ -275,7 +275,7 @@
         </div>
 
         <div class="sidebar" id="main-sidebar">
-            <h2>Get job alerts</h2>
+            <h2>Get <span id="sidebar-title-town" style="color: #ffca28;">local</span> job alerts</h2>
             <p>Scan to get new jobs in your area sent directly to your phone.</p>
             <svg class="bounce-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                 <rect width="20" height="16" x="2" y="4" rx="2"/>
@@ -344,6 +344,18 @@
             setInterval(tick, 1000);
         }
 
+        // --- DYNAMIC SIDEBAR HEADING LOGIC ---
+        function updateSidebarHeading() {
+            let displayTown = 'local';
+            if (selectedTowns.length === 1 && selectedTowns[0].toLowerCase() !== 'gippsland') {
+                displayTown = selectedTowns[0];
+            } else if (selectedTowns.length === 0 || (selectedTowns.length === 1 && selectedTowns[0].toLowerCase() === 'gippsland')) {
+                displayTown = 'Gippsland';
+            }
+            const sidebarTitleEl = document.getElementById('sidebar-title-town');
+            if(sidebarTitleEl) sidebarTitleEl.innerText = displayTown;
+        }
+
         async function initSettings() {
             const urlParams = new URLSearchParams(window.location.search);
             let configId = '0';
@@ -401,6 +413,8 @@
                 document.body.classList.remove('portrait');
             }
 
+            updateSidebarHeading();
+
             const trackedAlertsUrl = buildTrackingUrl('https://gippslander.com.au/alerts');
             generateLocalQR('interstitial-qr-box', trackedAlertsUrl);
             generateLocalQR('sidebar-qr-box', trackedAlertsUrl);
@@ -441,6 +455,8 @@
                             } else {
                                 document.body.classList.remove('portrait');
                             }
+
+                            updateSidebarHeading();
 
                             const trackedAlertsUrl = buildTrackingUrl('https://gippslander.com.au/alerts');
                             generateLocalQR('interstitial-qr-box', trackedAlertsUrl);
@@ -595,13 +611,11 @@
                 } catch(e) {}
             }
 
-            // Look for Expiry Date (checking common property names)
             const expiryDateStr = job.expires_at || job.valid_through || job.closing_date || job.expiry_date;
             if (expiryDateStr) {
                 try {
                     const expiry = new Date(expiryDateStr);
                     const daysLeft = (expiry - today) / (1000 * 60 * 60 * 24);
-                    // If it closes in 5 days or less, trigger the high-contrast badge
                     if (daysLeft <= 5 && daysLeft > 0) isClosingSoon = true;
                 } catch(e) {}
             }
@@ -624,7 +638,6 @@
             }
 
             if (isClosingSoon) {
-                // High-contrast deep red pulsating badge
                 badges += `<span class="badge badge-urgent animate-stagger delay-5">${alertCircleSvg} Closing soon</span>`;
             } else if (isNewlyListed) {
                 badges += `<span class="badge animate-stagger delay-5" style="background:#e8f5e9; border-color:#81c784; color:#1b5e20;">${clockSvg} Newly listed</span>`;
@@ -634,7 +647,6 @@
             const views = job.statistics?.views_count || 0;
 
             if (applies >= 5) {
-                // High-contrast bright orange warning badge
                 badges += `<span class="badge badge-warning animate-stagger delay-5">${flameSvg} ${applies} applied</span>`;
             } else if (applies > 0) {
                 badges += `<span class="badge badge-warning animate-stagger delay-5">${flameSvg} Fast moving</span>`;
