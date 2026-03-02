@@ -599,13 +599,14 @@
             // --- FOMO DATE MATH ---
             let isNewlyListed = false;
             let isClosingSoon = false;
+            let daysOld = 0;
             const today = new Date();
             
             const jobDateStr = job.created_at || job.published_at || job.date; 
             if (jobDateStr) {
                 try {
                     const posted = new Date(jobDateStr);
-                    const daysOld = (today - posted) / (1000 * 60 * 60 * 24);
+                    daysOld = (today - posted) / (1000 * 60 * 60 * 24);
                     if (daysOld <= 7 && daysOld >= 0) isNewlyListed = true;
                 } catch(e) {}
             }
@@ -617,6 +618,11 @@
                     const daysLeft = (expiry - today) / (1000 * 60 * 60 * 24);
                     if (daysLeft <= 5 && daysLeft > 0) isClosingSoon = true;
                 } catch(e) {}
+            }
+
+            // Fallback: If it's older than 20 days and hasn't been flagged as closing soon by an explicit date
+            if (!isClosingSoon && daysOld > 20) {
+                isClosingSoon = true;
             }
             
             const alertCircleSvg = `<svg stroke="currentColor" fill="none" stroke-width="2.5" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>`;
@@ -639,7 +645,7 @@
             if (isClosingSoon) {
                 badges += `<span class="badge badge-urgent animate-stagger delay-5">${alertCircleSvg} Closing soon</span>`;
             } else if (isNewlyListed) {
-                badges += `<span class="badge animate-stagger delay-5" style="background:#e8f5e9; border-color:#81c784; color:#1b5e20;">${clockSvg} Newly listed</span>`;
+                badges += `<span class="badge animate-stagger delay-5" style="background:#e8f5e9; border-color:#81c784; color:#1b5e20;">${clockSvg} Just listed</span>`;
             }
 
             const applies = job.statistics?.applies_count || 0;
@@ -648,7 +654,6 @@
             if (applies >= 5) {
                 badges += `<span class="badge badge-warning animate-stagger delay-5">${flameSvg} ${applies} applied</span>`;
             } else if (applies > 0) {
-                // Changed "Fast moving" to "Be an early applicant" and swapped the flame for a star.
                 badges += `<span class="badge badge-warning animate-stagger delay-5">${starSvg} Be an early applicant</span>`;
             } else if (views >= 25) {
                 badges += `<span class="badge animate-stagger delay-5" style="background:#e3f2fd; border-color:#64b5f6; color:#0d47a1;">${eyeSvg} ${views} people viewing</span>`;
