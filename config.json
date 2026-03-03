@@ -3,8 +3,8 @@
     "name": "Default Catch-All (Entire Region)",
     "towns": ["Gippsland", "Traralgon", "Warragul", "Bairnsdale", "Sale", "Morwell"],
     "duration": 15,
-    "alertFreq": 3,
-    "StatsFreq": 3,
+    "alertFreq": 2,
+    "StatsFreq": 2,
     "orientation": "landscape"
   },
   "1": {
