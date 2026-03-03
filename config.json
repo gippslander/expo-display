@@ -3,24 +3,24 @@
     "name": "Default Catch-All (Entire Region)",
     "towns": ["Gippsland", "Traralgon", "Warragul", "Bairnsdale", "Sale", "Morwell"],
     "duration": 15,
-    "alertFreq": 5,
-    "StatsFreq": 5,
+    "alertFreq": 3,
+    "StatsFreq": 3,
     "orientation": "landscape"
   },
   "1": {
     "name": "Screen One - South Gippsland",
     "towns": ["Inverloch", "Wonthaggi", "Leongatha", "Korumburra"],
     "duration": 15,
-    "alertFreq": 5,
-    "StatsFreq": 5,
+    "alertFreq": 3,
+    "StatsFreq": 3,
     "orientation": "landscape"
   },
   "2": {
     "name": "Screen Two - Kiosk Mode",
     "towns": ["Traralgon", "Morwell", "Moe"],
     "duration": 12,
-    "alertFreq": 4,
-    "StatsFreq": 5,
+    "alertFreq": 3,
+    "StatsFreq": 3,
     "orientation": "portrait"
   }
 }
