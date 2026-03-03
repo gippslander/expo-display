@@ -8,8 +8,8 @@
     "orientation": "landscape"
   },
   "1": {
-    "name": "Screen One - South Gippsland",
-    "towns": ["Inverloch", "Wonthaggi", "Leongatha", "Korumburra"],
+    "name": "South Gippsland Jobs Expo",
+    "towns": ["Leongatha", "Mirboo North", "Leongatha", "Venus Bay", "Inverloch", "Wonthaggi"],
     "duration": 15,
     "alertFreq": 3,
     "StatsFreq": 3,
