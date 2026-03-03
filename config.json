@@ -4,6 +4,7 @@
     "towns": ["Gippsland", "Traralgon", "Warragul", "Bairnsdale", "Sale", "Morwell"],
     "duration": 15,
     "alertFreq": 5,
+    "StatsFreq": 5,
     "orientation": "landscape"
   },
   "1": {
@@ -11,6 +12,7 @@
     "towns": ["Inverloch", "Wonthaggi", "Leongatha", "Korumburra"],
     "duration": 15,
     "alertFreq": 5,
+    "StatsFreq": 5,
     "orientation": "landscape"
   },
   "2": {
@@ -18,6 +20,7 @@
     "towns": ["Traralgon", "Morwell", "Moe"],
     "duration": 12,
     "alertFreq": 4,
+    "StatsFreq": 5,
     "orientation": "portrait"
   }
 }
