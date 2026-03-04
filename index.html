@@ -289,8 +289,8 @@
         </div>
 
         <div class="sidebar" id="main-sidebar">
-            <h2>Get <span id="sidebar-title-town" style="color: #ffca28;">local</span> job alerts</h2>
-            <p>Scan to get new jobs in your area sent directly to your phone.</p>
+            <h2 id="sidebar-dynamic-heading" style="transition: opacity 0.5s ease;">Get <span id="sidebar-title-town" style="color: #ffca28;">local</span> job alerts</h2>
+            <p id="sidebar-dynamic-subtext" style="transition: opacity 0.5s ease;">Scan to get new jobs in your area sent directly to your phone.</p>
             <svg class="bounce-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                 <rect width="20" height="16" x="2" y="4" rx="2"/>
                 <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/>
@@ -313,10 +313,10 @@
         let statsFrequency = 5;
         let jobDisplayCounter = 0; 
         let currentPhase = 'alerts'; // Toggles between 'alerts' and 'stats'
+        let sidebarState = 0; // Tracks which message is currently showing on the sidebar
         
         let jobs = [], currentIndex = 0;
         let slideTimer, backgroundRefreshTimer, townCycleInterval, configPollTimer;
-        let currentTownIndex = 0;
         let currentConfigName = 'Default_Screen'; 
 
         // --- STATS DATA ---
@@ -378,6 +378,62 @@
             }
             const sidebarTitleEl = document.getElementById('sidebar-title-town');
             if(sidebarTitleEl) sidebarTitleEl.innerText = displayTown;
+        }
+
+        function rotateSidebarContent() {
+            const headingEl = document.getElementById('sidebar-dynamic-heading');
+            const subtextEl = document.getElementById('sidebar-dynamic-subtext');
+            if (!headingEl || !subtextEl) return;
+
+            // 1. Group live jobs by location and count them
+            let townCounts = {};
+            jobs.forEach(job => {
+                let loc = (job.location || 'Gippsland').replace(/,\s*Victoria,\s*Australia/i, '').trim();
+                if (loc) {
+                    townCounts[loc] = (townCounts[loc] || 0) + 1;
+                }
+            });
+
+            // 2. Filter to include towns with more than 2 jobs
+            let eligibleTowns = Object.keys(townCounts).filter(town => townCounts[town] > 2);
+
+            // 3. Fallback: If no towns have > 2 jobs, just use towns with > 0 jobs, or config towns
+            if (eligibleTowns.length === 0) {
+                eligibleTowns = Object.keys(townCounts);
+            }
+            if (eligibleTowns.length === 0) {
+                eligibleTowns = selectedTowns.length > 0 ? selectedTowns : ['Gippsland'];
+            }
+
+            // Pick TWO random towns from the eligible list (one for each state)
+            const randomTownA = eligibleTowns[Math.floor(Math.random() * eligibleTowns.length)];
+            const randomTownB = eligibleTowns[Math.floor(Math.random() * eligibleTowns.length)];
+            
+            // Get the actual job count for Town B
+            const displayStatCount = townCounts[randomTownB] || jobs.length;
+
+            // Toggle state
+            sidebarState = (sidebarState + 1) % 2;
+
+            // Fade text out
+            headingEl.style.opacity = 0;
+            subtextEl.style.opacity = 0;
+
+            // Wait for fade out, update text, then fade back in
+            setTimeout(() => {
+                if (sidebarState === 0) {
+                    // STATE 1: Default Alert CTA (Now uses a dynamic feed town)
+                    headingEl.innerHTML = `Get <span style="color: #ffca28;">${randomTownA}</span> job alerts`;
+                    subtextEl.innerHTML = `Scan to get new jobs in your area sent directly to your phone.`;
+                } else {
+                    // STATE 2: Dynamic Stats (Uses a DIFFERENT dynamic feed town)
+                    headingEl.innerHTML = `<span style="color: #ffca28;">${displayStatCount}</span> just listed around <span style="color: #ffca28;">${randomTownB}</span>`;
+                    subtextEl.innerHTML = `Don't miss out. Scan to get instant alerts for new local roles.`;
+                }
+                
+                headingEl.style.opacity = 1;
+                subtextEl.style.opacity = 1;
+            }, 500); 
         }
 
         async function initSettings() {
@@ -632,10 +688,28 @@
         }
 
         function startTownCycle() {
-            const townsToCycle = [...selectedTowns, 'Gippsland'];
+            // 1. Extract all unique towns from the live jobs feed
+            let uniqueTowns = new Set();
+            jobs.forEach(job => {
+                let loc = (job.location || '').replace(/,\s*Victoria,\s*Australia/i, '').trim();
+                if (loc) uniqueTowns.add(loc);
+            });
+
+            // 2. Convert to an array. Fallback to config if feed is somehow empty
+            let townsToCycle = Array.from(uniqueTowns);
+            if (townsToCycle.length === 0) {
+                townsToCycle = selectedTowns.length > 0 ? selectedTowns : ['Gippsland'];
+            }
+
+            // 3. Shuffle the array so it shows a different mix of towns every time the splash page loads
+            for (let i = townsToCycle.length - 1; i > 0; i--) { 
+                const j = Math.floor(Math.random() * (i + 1)); 
+                [townsToCycle[i], townsToCycle[j]] = [townsToCycle[j], townsToCycle[i]]; 
+            }
+
             const townSpan = document.getElementById('dynamic-town');
             clearInterval(townCycleInterval);
-            currentTownIndex = 0;
+            let currentTownIndex = 0;
             townSpan.innerText = townsToCycle[0];
             
             townCycleInterval = setInterval(() => {
@@ -648,7 +722,7 @@
                     townSpan.style.opacity = 1;
                     townSpan.style.transform = 'translateY(0)';
                 }, 300); 
-            }, 2500); 
+            }, 2500); // Changes town every 2.5 seconds
         }
 
         function triggerProgressBar(barId) {
@@ -731,6 +805,9 @@
         }
 
         function renderJob() {
+            // Trigger dynamic sidebar text
+            rotateSidebarContent();
+
             clearInterval(townCycleInterval); 
             document.getElementById('interstitial-alerts').style.display = 'none';
             document.getElementById('interstitial-stats').style.display = 'none';
