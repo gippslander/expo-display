@@ -5,6 +5,7 @@
     "duration": 15,
     "alertFreq": 2,
     "StatsFreq": 2,
+    "EmployerFreq": 2,
     "orientation": "landscape"
   },
   "1": {
