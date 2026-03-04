@@ -100,6 +100,7 @@
         
         #interstitial-alerts { background: linear-gradient(45deg, #1b5e20, #4CAF50, #0d47a1, #4CAF50); background-size: 300% 300%; animation: gradientShift 10s ease infinite; }
         #interstitial-stats { background: linear-gradient(135deg, #0d47a1, #1565c0, #283593, #000000); background-size: 300% 300%; animation: gradientShift 15s ease infinite; }
+        #interstitial-employers { background: linear-gradient(135deg, #121212, #2d3436, #1a1a1a, #000000); background-size: 300% 300%; animation: gradientShift 15s ease infinite; }
 
         @keyframes gradientShift { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
 
@@ -142,6 +143,23 @@
         /* Giant Live Number */
         .live-stat-giant { font-size: clamp(4rem, 10vmin, 8rem); font-weight: 900; line-height: 1; color: white; margin-bottom: 1vh; font-variant-numeric: tabular-nums; display: flex; align-items: center; gap: 15px;}
         .live-stat-giant svg { width: clamp(40px, 8vmin, 80px); height: auto; color: #ff3b30; animation: pulse-live 1.5s infinite; border-radius: 50%;}
+
+        /* --- EMPLOYER WALL SCREEN --- */
+        .logo-wall-grid { display: flex; flex-wrap: wrap; justify-content: center; gap: 3.5vmin; width: 95%; max-width: 1600px; margin-top: 2vh; margin-bottom: 3vh; z-index: 2;}
+        .logo-wall-card { background: rgba(255, 255, 255, 0.95); border-radius: 20px; padding: 4vmin; display: flex; flex-direction: column; align-items: center; justify-content: center; box-shadow: 0 15px 35px rgba(0,0,0,0.4); width: clamp(220px, 28vmin, 320px); animation: popIn 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) backwards; transition: transform 0.3s ease; border: 2px solid transparent;}
+        
+        .logo-wall-card.is-featured { border-color: #ffca28; background: linear-gradient(to bottom, #ffffff, #fffdf2); }
+        
+        .logo-wall-img-box { height: clamp(90px, 12vmin, 140px); display: flex; align-items: center; justify-content: center; margin-bottom: 1.5vh; width: 100%;}
+        .logo-wall-img { max-width: 100%; max-height: 100%; object-fit: contain; }
+        
+        .logo-wall-count { background: #fff8e1; color: #f57f17; padding: 6px 15px; border-radius: 20px; font-weight: 800; font-size: clamp(0.9rem, 1.5vmin, 1.1rem); border: 1.5px solid #ffca28; display: flex; align-items: center; justify-content: center;}
+        
+        .employers-bottom-cta { display: flex; align-items: center; gap: 4vmin; background: rgba(255,255,255,0.1); backdrop-filter: blur(10px); padding: 2.5vmin 4vmin; border-radius: 100px; border: 1px solid rgba(255,255,255,0.2); animation: popIn 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) backwards; animation-delay: 1.2s; z-index: 2;}
+        .employers-bottom-cta .qr-label { color: white; font-size: clamp(1.2rem, 2.5vmin, 1.8rem); font-weight: 700; display: flex; flex-direction: column; align-items: flex-start; text-align: left;}
+        .employers-bottom-cta .qr-sub { color: #ffca28; font-size: clamp(0.9rem, 1.8vmin, 1.2rem); font-weight: 600; text-transform: uppercase; letter-spacing: 1px;}
+        #employers-qr-box { background: white; padding: 10px; border-radius: 15px; }
+        #employers-qr-box canvas, #employers-qr-box img { width: clamp(70px, 10vmin, 100px) !important; height: auto !important; margin: 0;}
 
         /* --- Job Display Container --- */
         .job-container { flex: 1.8; background: white; border-radius: 20px; box-shadow: 0 10px 40px rgba(0,0,0,0.08); padding: 5vmin; display: flex; flex-direction: column; justify-content: center; position: relative; overflow: hidden; }
@@ -266,8 +284,7 @@
                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
                             Highest Demand Areas
                         </div>
-                        <div id="demand-meters-container" style="width: 100%;">
-                            </div>
+                        <div id="demand-meters-container" style="width: 100%;"></div>
                     </div>
 
                     <div class="stat-card">
@@ -275,12 +292,31 @@
                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
                             Top Employers Hiring
                         </div>
-                        <div class="employer-list" id="top-employers-container">
-                             </div>
+                        <div class="employer-list" id="top-employers-container"></div>
                     </div>
                 </div>
             </div>
             <div class="progress-bar-container"><div class="progress-bar" id="progress-stats"></div></div>
+        </div>
+
+        <div id="interstitial-employers" class="interstitial-panel">
+            <svg class="bg-icon" style="left: 20%; animation-duration: 13s; color: rgba(255, 202, 40, 0.08);" xmlns="http://www.w3.org/2000/svg" width="160" height="160" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            <svg class="bg-icon" style="left: 70%; animation-duration: 16s; animation-delay: 3s; color: rgba(255, 255, 255, 0.03);" xmlns="http://www.w3.org/2000/svg" width="120" height="120" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="3" y1="9" x2="21" y2="9"></line><line x1="9" y1="21" x2="9" y2="9"></line></svg>
+            
+            <div class="hook-title" style="color: #ffca28; margin-bottom: 2vh;">Top Employers Hiring Locally</div>
+            
+            <div class="logo-wall-grid" id="logo-wall-container">
+                </div>
+
+            <div class="employers-bottom-cta">
+                <div id="employers-qr-box"></div>
+                <div class="qr-label">
+                    <span class="qr-sub">Looking for work?</span>
+                    Scan to view all active employers
+                </div>
+            </div>
+            
+            <div class="progress-bar-container"><div class="progress-bar" id="progress-employers"></div></div>
         </div>
 
         <div class="job-container" id="main-job-container">
@@ -311,9 +347,10 @@
         // --- ROTATION LOGIC VARIABLES ---
         let alertFrequency = 5; 
         let statsFrequency = 5;
+        let employerFrequency = 5; 
         let jobDisplayCounter = 0; 
-        let currentPhase = 'alerts'; // Toggles between 'alerts' and 'stats'
-        let sidebarState = 0; // Tracks which message is currently showing on the sidebar
+        let currentPhase = 'alerts'; // Sequence: alerts -> employers_1 -> stats -> employers_2 -> alerts...
+        let sidebarState = 0; 
         
         let jobs = [], currentIndex = 0;
         let slideTimer, backgroundRefreshTimer, townCycleInterval, configPollTimer;
@@ -422,13 +459,13 @@
             // Wait for fade out, update text, then fade back in
             setTimeout(() => {
                 if (sidebarState === 0) {
-                    // STATE 1: Default Alert CTA (Now uses a dynamic feed town)
+                    // STATE 1: Default Alert CTA 
                     headingEl.innerHTML = `Get <span style="color: #ffca28;">${randomTownA}</span> job alerts`;
                     subtextEl.innerHTML = `Scan to get new jobs in your area sent directly to your phone.`;
                 } else {
-                    // STATE 2: Dynamic Stats (Uses a DIFFERENT dynamic feed town)
+                    // STATE 2: Dynamic Stats
                     headingEl.innerHTML = `<span style="color: #ffca28;">${displayStatCount}</span> just listed around <span style="color: #ffca28;">${randomTownB}</span>`;
-                    subtextEl.innerHTML = `Don't miss out. Scan to get instant alerts for new local roles.`;
+                    subtextEl.innerHTML = `Be the first to apply. Scan below to view.`;
                 }
                 
                 headingEl.style.opacity = 1;
@@ -472,6 +509,7 @@
                         duration: 15,
                         alertFreq: 5,
                         StatsFreq: 5,
+                        EmployerFreq: 5,
                         orientation: "landscape"
                     }, "emergency");
                 }
@@ -483,6 +521,7 @@
             displayDuration = parseInt(conf.duration || 15) * 1000;
             alertFrequency = parseInt(conf.alertFreq || 5);
             statsFrequency = parseInt(conf.StatsFreq || 5); 
+            employerFrequency = parseInt(conf.EmployerFreq || 5); 
             currentConfigName = conf.name || `Screen_${configId}`; 
             
             if (conf.orientation === 'portrait') {
@@ -494,8 +533,11 @@
             updateSidebarHeading();
 
             const trackedAlertsUrl = buildTrackingUrl('https://gippslander.com.au/alerts');
+            const trackedEmployersUrl = buildTrackingUrl('https://gippslander.com.au/employers');
+            
             generateLocalQR('interstitial-qr-box', trackedAlertsUrl);
             generateLocalQR('sidebar-qr-box', trackedAlertsUrl);
+            generateLocalQR('employers-qr-box', trackedEmployersUrl);
 
             if (!document.fullscreenElement) document.documentElement.requestFullscreen().catch(e => {});
 
@@ -587,7 +629,7 @@
                 }
             });
 
-            // Update Views Counter (Top right)
+            // Update Views Counter
             if (realTotalViews > currentViewCount) {
                 currentViewCount = realTotalViews;
             }
@@ -607,9 +649,9 @@
             locationDemandData = Object.keys(locMap)
                 .map(k => ({ name: k, views: locMap[k] }))
                 .sort((a, b) => b.views - a.views)
-                .slice(0, 4); // Top 4
+                .slice(0, 4); 
 
-            // Sort Employers: 1. Featured, 2. Pinned, 3. Highest Job Count
+            // Sort Employers
             topEmployersData = Object.keys(empMap)
                 .map(k => ({ 
                     name: k, 
@@ -622,8 +664,7 @@
                     if (a.isFeatured !== b.isFeatured) return a.isFeatured ? -1 : 1;
                     if (a.hasPinned !== b.hasPinned) return a.hasPinned ? -1 : 1;
                     return b.count - a.count;
-                })
-                .slice(0, 5); // Top 5
+                });
         }
 
         function tickViewCounter() {
@@ -674,34 +715,40 @@
         function renderLoop() {
             jobDisplayCounter++;
             
+            // New Rotation Sequence: Alerts -> Employers -> Stats -> Employers -> loop
             if (currentPhase === 'alerts' && jobDisplayCounter >= alertFrequency) { 
                 showEmailInterstitial();
                 jobDisplayCounter = 0;
-                currentPhase = 'stats';
+                currentPhase = 'employers_1';
+            } else if (currentPhase === 'employers_1' && jobDisplayCounter >= employerFrequency) {
+                showEmployersInterstitial();
+                jobDisplayCounter = 0;
+                currentPhase = 'stats'; 
             } else if (currentPhase === 'stats' && jobDisplayCounter >= statsFrequency) {
                 showStatsInterstitial();
                 jobDisplayCounter = 0;
-                currentPhase = 'alerts';
+                currentPhase = 'employers_2';
+            } else if (currentPhase === 'employers_2' && jobDisplayCounter >= employerFrequency) {
+                showEmployersInterstitial();
+                jobDisplayCounter = 0;
+                currentPhase = 'alerts'; 
             } else {
                 renderJob();
             }
         }
 
         function startTownCycle() {
-            // 1. Extract all unique towns from the live jobs feed
             let uniqueTowns = new Set();
             jobs.forEach(job => {
                 let loc = (job.location || '').replace(/,\s*Victoria,\s*Australia/i, '').trim();
                 if (loc) uniqueTowns.add(loc);
             });
 
-            // 2. Convert to an array. Fallback to config if feed is somehow empty
             let townsToCycle = Array.from(uniqueTowns);
             if (townsToCycle.length === 0) {
                 townsToCycle = selectedTowns.length > 0 ? selectedTowns : ['Gippsland'];
             }
 
-            // 3. Shuffle the array so it shows a different mix of towns every time the splash page loads
             for (let i = townsToCycle.length - 1; i > 0; i--) { 
                 const j = Math.floor(Math.random() * (i + 1)); 
                 [townsToCycle[i], townsToCycle[j]] = [townsToCycle[j], townsToCycle[i]]; 
@@ -722,7 +769,7 @@
                     townSpan.style.opacity = 1;
                     townSpan.style.transform = 'translateY(0)';
                 }, 300); 
-            }, 2500); // Changes town every 2.5 seconds
+            }, 2500); 
         }
 
         function triggerProgressBar(barId) {
@@ -740,6 +787,7 @@
             document.getElementById('main-job-container').style.display = 'none';
             document.getElementById('main-sidebar').style.display = 'none';
             document.getElementById('interstitial-stats').style.display = 'none';
+            document.getElementById('interstitial-employers').style.display = 'none';
             document.getElementById('interstitial-alerts').style.display = 'flex';
             
             startTownCycle(); 
@@ -751,6 +799,7 @@
             document.getElementById('main-job-container').style.display = 'none';
             document.getElementById('main-sidebar').style.display = 'none';
             document.getElementById('interstitial-alerts').style.display = 'none';
+            document.getElementById('interstitial-employers').style.display = 'none';
             document.getElementById('interstitial-stats').style.display = 'flex';
 
             const appliesEl = document.getElementById('giant-applies-num');
@@ -779,13 +828,48 @@
 
             const employersContainer = document.getElementById('top-employers-container');
             employersContainer.innerHTML = '';
-            topEmployersData.forEach(emp => {
+            topEmployersData.slice(0, 5).forEach(emp => {
                 const imgTag = emp.logo ? `<img src="${emp.logo}" onerror="this.style.display='none'">` : '';
                 const starIcon = emp.isFeatured ? `<svg style="width:16px;height:16px;color:#ffca28;margin-left:4px;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>` : '';
                 employersContainer.innerHTML += `<div class="employer-pill">${imgTag} ${emp.name} ${starIcon}</div>`;
             });
 
             triggerProgressBar('progress-stats');
+        }
+
+        function showEmployersInterstitial() {
+            clearInterval(townCycleInterval);
+            document.getElementById('main-job-container').style.display = 'none';
+            document.getElementById('main-sidebar').style.display = 'none';
+            document.getElementById('interstitial-alerts').style.display = 'none';
+            document.getElementById('interstitial-stats').style.display = 'none';
+            document.getElementById('interstitial-employers').style.display = 'flex';
+
+            const logoContainer = document.getElementById('logo-wall-container');
+            logoContainer.innerHTML = '';
+            
+            const validEmployers = topEmployersData.filter(emp => emp.logo && emp.logo !== '').slice(0, 8);
+            
+            validEmployers.forEach((emp, index) => {
+                const delay = 0.3 + (index * 0.1);
+                const featuredClass = emp.isFeatured ? 'is-featured' : '';
+                
+                // Formatted with sentence case and proper singular/plural grammar
+                const roleText = emp.count === 1 ? 'Open role' : 'Open roles';
+
+                logoContainer.innerHTML += `
+                    <div class="logo-wall-card ${featuredClass}" style="animation-delay: ${delay}s">
+                        <div class="logo-wall-img-box">
+                            <img src="${emp.logo}" class="logo-wall-img" onerror="this.style.display='none'">
+                        </div>
+                        <div class="logo-wall-count">
+                            ${emp.count} ${roleText}
+                        </div>
+                    </div>
+                `;
+            });
+
+            triggerProgressBar('progress-employers');
         }
 
         function animateValue(obj, start, end, duration) {
@@ -805,12 +889,12 @@
         }
 
         function renderJob() {
-            // Trigger dynamic sidebar text
             rotateSidebarContent();
 
             clearInterval(townCycleInterval); 
             document.getElementById('interstitial-alerts').style.display = 'none';
             document.getElementById('interstitial-stats').style.display = 'none';
+            document.getElementById('interstitial-employers').style.display = 'none';
             document.getElementById('main-job-container').style.display = 'flex';
             document.getElementById('main-sidebar').style.display = 'flex';
             
