@@ -717,7 +717,7 @@
         function renderLoop() {
             jobDisplayCounter++;
             
-            // Rotation Sequence: Alerts -> Employers -> Stats -> Employers -> loop
+            // Rotation Sequence: Alerts -> Employers_1 -> Stats -> Employers_2 -> loop
             if (currentPhase === 'alerts' && jobDisplayCounter >= alertFrequency) { 
                 showEmailInterstitial();
                 jobDisplayCounter = 0;
@@ -850,12 +850,28 @@
             const logoContainer = document.getElementById('logo-wall-container');
             logoContainer.innerHTML = '';
             
-            // This strictly requires them to have a logo AND be featured or pinned
-            const validEmployers = topEmployersData.filter(emp => emp.logo && emp.logo !== '' && (emp.isFeatured || emp.hasPinned)).slice(0, 8);
+            // 1. Get all employers that have a valid logo
+            let employersWithLogos = topEmployersData.filter(emp => emp.logo && emp.logo !== '');
+            
+            // 2. Separate into Priority 1, 2, and 3
+            let featuredEmps = employersWithLogos.filter(emp => emp.isFeatured);
+            let pinnedEmps = employersWithLogos.filter(emp => emp.hasPinned && !emp.isFeatured);
+            let otherEmps = employersWithLogos.filter(emp => !emp.isFeatured && !emp.hasPinned);
+            
+            // 3. Shuffle Priority 3 (Everything Else) so it's random
+            for (let i = otherEmps.length - 1; i > 0; i--) { 
+                const j = Math.floor(Math.random() * (i + 1)); 
+                [otherEmps[i], otherEmps[j]] = [otherEmps[j], otherEmps[i]]; 
+            }
+            
+            // 4. Combine into final sorted array and take the top 8
+            const validEmployers = [...featuredEmps, ...pinnedEmps, ...otherEmps].slice(0, 8);
             
             validEmployers.forEach((emp, index) => {
                 const delay = 0.3 + (index * 0.1);
-                const featuredClass = emp.isFeatured ? 'is-featured' : '';
+                
+                // Give the premium gold border to Featured and Pinned roles only
+                const featuredClass = (emp.isFeatured || emp.hasPinned) ? 'is-featured' : '';
                 
                 // Formatted with sentence case and a clear space
                 const roleText = emp.count === 1 ? 'Open role' : 'Open roles';
@@ -964,7 +980,6 @@
             if (applies >= 5) {
                 badges += `<span class="badge badge-warning animate-stagger delay-5">${flameSvg} ${applies} applied</span>`;
             } else if (applies > 0 && !isClosingSoon) {
-                // FIXED: Prevents "Early applicant" from showing if it is also "Closing soon"
                 badges += `<span class="badge badge-warning animate-stagger delay-5">${starSvg} Be an early applicant</span>`;
             } else if (views >= 25) {
                 badges += `<span class="badge animate-stagger delay-5" style="background:#e3f2fd; border-color:#64b5f6; color:#0d47a1;">${eyeSvg} ${views} people viewing</span>`;
