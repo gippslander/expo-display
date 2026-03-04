@@ -147,15 +147,18 @@
         /* --- EMPLOYER WALL SCREEN --- */
         .employers-title { font-size: clamp(2.5rem, 6vh, 4.5rem); font-weight: 900; margin-bottom: 1vh; text-align: center; line-height: 1.1; color: #ffca28; text-shadow: 2px 4px 10px rgba(0,0,0,0.3); animation: popIn 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) backwards; animation-delay: 0.3s; }
         
-        .logo-wall-grid { display: flex; flex-wrap: wrap; justify-content: center; gap: 2.5vmin; width: 95%; max-width: 1200px; margin-top: 1vh; margin-bottom: 3vh; z-index: 2;}
-        .logo-wall-card { background: rgba(255, 255, 255, 0.95); border-radius: 20px; padding: 2.5vmin; display: flex; flex-direction: column; align-items: center; justify-content: center; box-shadow: 0 15px 35px rgba(0,0,0,0.4); width: clamp(160px, 20vw, 250px); animation: popIn 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) backwards; transition: transform 0.3s ease; border: 2px solid transparent;}
+        .logo-wall-grid { display: flex; flex-wrap: wrap; justify-content: center; gap: 3vmin; width: 95%; max-width: 1400px; margin-top: 1vh; margin-bottom: 3.5vh; z-index: 2;}
         
-        .logo-wall-card.is-featured { border-color: #ffca28; background: linear-gradient(to bottom, #ffffff, #fffdf2); }
+        /* High-end 3D aesthetic for cards */
+        .logo-wall-card { background: #ffffff; border-radius: 24px; padding: 3vmin; display: flex; flex-direction: column; align-items: center; justify-content: space-between; box-shadow: 0 20px 40px rgba(0,0,0,0.5), inset 0 2px 0 rgba(255,255,255,0.8); width: clamp(200px, 23vw, 300px); animation: popIn 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) backwards; border: 1px solid rgba(255,255,255,0.1);}
         
-        .logo-wall-img-box { height: clamp(60px, 9vh, 110px); display: flex; align-items: center; justify-content: center; margin-bottom: 1.5vh; width: 100%;}
+        .logo-wall-card.is-featured { border: 3px solid #ffca28; background: linear-gradient(180deg, #ffffff 0%, #fffdf0 100%); box-shadow: 0 20px 40px rgba(0,0,0,0.6), 0 0 20px rgba(255, 202, 40, 0.15); }
+        
+        .logo-wall-img-box { height: clamp(70px, 10vh, 120px); display: flex; align-items: center; justify-content: center; margin-bottom: 2vh; width: 100%;}
         .logo-wall-img { max-width: 100%; max-height: 100%; object-fit: contain; }
         
-        .logo-wall-count { background: #fff8e1; color: #f57f17; padding: 6px 15px; border-radius: 20px; font-weight: 800; font-size: clamp(0.9rem, 1.6vmin, 1.2rem); border: 1.5px solid #ffca28; display: flex; align-items: center; justify-content: center;}
+        /* High-Contrast Bold Pill */
+        .logo-wall-count { background: #ffca28; color: #1a1a1a; padding: 8px 20px; border-radius: 30px; font-weight: 800; font-size: clamp(1rem, 1.7vmin, 1.3rem); display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 15px rgba(255, 202, 40, 0.3); width: 85%; letter-spacing: 0.5px;}
         
         .employers-bottom-cta { display: flex; align-items: center; gap: 3vmin; background: rgba(255,255,255,0.1); backdrop-filter: blur(10px); padding: 1.5vmin 3vmin; border-radius: 100px; border: 1px solid rgba(255,255,255,0.2); animation: popIn 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) backwards; animation-delay: 1.2s; z-index: 2;}
         .employers-bottom-cta .qr-label { color: white; font-size: clamp(1.1rem, 2.2vmin, 1.6rem); font-weight: 700; display: flex; flex-direction: column; align-items: flex-start; text-align: left;}
@@ -305,7 +308,7 @@
             <svg class="bg-icon" style="left: 20%; animation-duration: 13s; color: rgba(255, 202, 40, 0.08);" xmlns="http://www.w3.org/2000/svg" width="160" height="160" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
             <svg class="bg-icon" style="left: 70%; animation-duration: 16s; animation-delay: 3s; color: rgba(255, 255, 255, 0.03);" xmlns="http://www.w3.org/2000/svg" width="120" height="120" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="3" y1="9" x2="21" y2="9"></line><line x1="9" y1="21" x2="9" y2="9"></line></svg>
             
-            <div class="employers-title">Top Employers Hiring Locally</div>
+            <div class="employers-title">Top employers hiring locally</div>
             
             <div class="logo-wall-grid" id="logo-wall-container">
                 </div>
@@ -366,6 +369,15 @@
         let appliesTickTimer;
         let locationDemandData = [];
         let topEmployersData = [];
+
+        // Helper function to shuffle arrays for random selection
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
 
         function generateLocalQR(elementId, url) {
             const container = document.getElementById(elementId);
@@ -619,15 +631,18 @@
                         empMap[empName] = { 
                             count: 0, 
                             logo: job.employer.logo,
-                            isFeatured: job.employer.featured === true,
-                            hasPinned: job.pin_to_top === true
+                            isFeatured: false,
+                            hasPinned: false
                         };
                     }
                     
                     empMap[empName].count += 1;
                     
+                    // IF ANY ACTIVE JOB FOR THIS EMPLOYER IS FEATURED/PINNED, FLAG THE EMPLOYER
                     if (job.pin_to_top === true) empMap[empName].hasPinned = true;
-                    if (job.employer.featured === true) empMap[empName].isFeatured = true;
+                    if (job.featured === true || (job.employer && job.employer.featured === true)) {
+                        empMap[empName].isFeatured = true;
+                    }
                 }
             });
 
@@ -653,7 +668,7 @@
                 .sort((a, b) => b.views - a.views)
                 .slice(0, 4); 
 
-            // Sort Employers
+            // Base Employer Generation (for Stats screen)
             topEmployersData = Object.keys(empMap)
                 .map(k => ({ 
                     name: k, 
@@ -717,7 +732,7 @@
         function renderLoop() {
             jobDisplayCounter++;
             
-            // Rotation Sequence: Alerts -> Employers_1 -> Stats -> Employers_2 -> loop
+            // Explicit requested sequence: Alerts -> Logos -> Stats -> Logos -> loop
             if (currentPhase === 'alerts' && jobDisplayCounter >= alertFrequency) { 
                 showEmailInterstitial();
                 jobDisplayCounter = 0;
@@ -858,22 +873,21 @@
             let pinnedEmps = employersWithLogos.filter(emp => emp.hasPinned && !emp.isFeatured);
             let otherEmps = employersWithLogos.filter(emp => !emp.isFeatured && !emp.hasPinned);
             
-            // 3. Shuffle Priority 3 (Everything Else) so it's random
-            for (let i = otherEmps.length - 1; i > 0; i--) { 
-                const j = Math.floor(Math.random() * (i + 1)); 
-                [otherEmps[i], otherEmps[j]] = [otherEmps[j], otherEmps[i]]; 
-            }
+            // 3. Shuffle all tiers so it's a random mix each loop
+            shuffleArray(featuredEmps);
+            shuffleArray(pinnedEmps);
+            shuffleArray(otherEmps);
             
-            // 4. Combine into final sorted array and take the top 8
+            // 4. Combine into final sorted array and take the top 8 (guarantees Featured/Pinned take up the first slots)
             const validEmployers = [...featuredEmps, ...pinnedEmps, ...otherEmps].slice(0, 8);
             
             validEmployers.forEach((emp, index) => {
                 const delay = 0.3 + (index * 0.1);
                 
-                // Give the premium gold border to Featured and Pinned roles only
+                // Give the premium gold styling to Featured and Pinned roles only
                 const featuredClass = (emp.isFeatured || emp.hasPinned) ? 'is-featured' : '';
                 
-                // Formatted with sentence case and a clear space
+                // Sentence Case + space
                 const roleText = emp.count === 1 ? 'Open role' : 'Open roles';
 
                 logoContainer.innerHTML += `
@@ -919,7 +933,7 @@
             
             const job = jobs[currentIndex];
             const logo = job.employer?.logo ? `<img src="${job.employer.logo}" class="company-logo" onerror="this.style.display='none'">` : '';
-            const location = (job.location || '').replace(/,\s*Victoria,\s*Australia/i, '');
+            const location = (job.location || '').replace(/,\s*Victoria,\s*Australia/i, '').trim();
             const cleanDesc = (job.description || '').replace(/<[^>]*>/g, '');
             const shortDesc = cleanDesc.length > 250 ? cleanDesc.substring(0, 250) + '...' : cleanDesc;
             
