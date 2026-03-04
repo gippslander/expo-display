@@ -145,21 +145,23 @@
         .live-stat-giant svg { width: clamp(40px, 8vmin, 80px); height: auto; color: #ff3b30; animation: pulse-live 1.5s infinite; border-radius: 50%;}
 
         /* --- EMPLOYER WALL SCREEN --- */
-        .logo-wall-grid { display: flex; flex-wrap: wrap; justify-content: center; gap: 3.5vmin; width: 95%; max-width: 1600px; margin-top: 2vh; margin-bottom: 3vh; z-index: 2;}
-        .logo-wall-card { background: rgba(255, 255, 255, 0.95); border-radius: 20px; padding: 4vmin; display: flex; flex-direction: column; align-items: center; justify-content: center; box-shadow: 0 15px 35px rgba(0,0,0,0.4); width: clamp(220px, 28vmin, 320px); animation: popIn 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) backwards; transition: transform 0.3s ease; border: 2px solid transparent;}
+        .employers-title { font-size: clamp(2.5rem, 6vh, 4.5rem); font-weight: 900; margin-bottom: 1vh; text-align: center; line-height: 1.1; color: #ffca28; text-shadow: 2px 4px 10px rgba(0,0,0,0.3); animation: popIn 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) backwards; animation-delay: 0.3s; }
+        
+        .logo-wall-grid { display: flex; flex-wrap: wrap; justify-content: center; gap: 2.5vmin; width: 95%; max-width: 1200px; margin-top: 1vh; margin-bottom: 3vh; z-index: 2;}
+        .logo-wall-card { background: rgba(255, 255, 255, 0.95); border-radius: 20px; padding: 2.5vmin; display: flex; flex-direction: column; align-items: center; justify-content: center; box-shadow: 0 15px 35px rgba(0,0,0,0.4); width: clamp(160px, 20vw, 250px); animation: popIn 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) backwards; transition: transform 0.3s ease; border: 2px solid transparent;}
         
         .logo-wall-card.is-featured { border-color: #ffca28; background: linear-gradient(to bottom, #ffffff, #fffdf2); }
         
-        .logo-wall-img-box { height: clamp(90px, 12vmin, 140px); display: flex; align-items: center; justify-content: center; margin-bottom: 1.5vh; width: 100%;}
+        .logo-wall-img-box { height: clamp(60px, 9vh, 110px); display: flex; align-items: center; justify-content: center; margin-bottom: 1.5vh; width: 100%;}
         .logo-wall-img { max-width: 100%; max-height: 100%; object-fit: contain; }
         
-        .logo-wall-count { background: #fff8e1; color: #f57f17; padding: 6px 15px; border-radius: 20px; font-weight: 800; font-size: clamp(0.9rem, 1.5vmin, 1.1rem); border: 1.5px solid #ffca28; display: flex; align-items: center; justify-content: center;}
+        .logo-wall-count { background: #fff8e1; color: #f57f17; padding: 6px 15px; border-radius: 20px; font-weight: 800; font-size: clamp(0.9rem, 1.6vmin, 1.2rem); border: 1.5px solid #ffca28; display: flex; align-items: center; justify-content: center;}
         
-        .employers-bottom-cta { display: flex; align-items: center; gap: 4vmin; background: rgba(255,255,255,0.1); backdrop-filter: blur(10px); padding: 2.5vmin 4vmin; border-radius: 100px; border: 1px solid rgba(255,255,255,0.2); animation: popIn 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) backwards; animation-delay: 1.2s; z-index: 2;}
-        .employers-bottom-cta .qr-label { color: white; font-size: clamp(1.2rem, 2.5vmin, 1.8rem); font-weight: 700; display: flex; flex-direction: column; align-items: flex-start; text-align: left;}
-        .employers-bottom-cta .qr-sub { color: #ffca28; font-size: clamp(0.9rem, 1.8vmin, 1.2rem); font-weight: 600; text-transform: uppercase; letter-spacing: 1px;}
+        .employers-bottom-cta { display: flex; align-items: center; gap: 3vmin; background: rgba(255,255,255,0.1); backdrop-filter: blur(10px); padding: 1.5vmin 3vmin; border-radius: 100px; border: 1px solid rgba(255,255,255,0.2); animation: popIn 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) backwards; animation-delay: 1.2s; z-index: 2;}
+        .employers-bottom-cta .qr-label { color: white; font-size: clamp(1.1rem, 2.2vmin, 1.6rem); font-weight: 700; display: flex; flex-direction: column; align-items: flex-start; text-align: left;}
+        .employers-bottom-cta .qr-sub { color: #ffca28; font-size: clamp(0.8rem, 1.5vmin, 1.1rem); font-weight: 600; text-transform: uppercase; letter-spacing: 1px;}
         #employers-qr-box { background: white; padding: 10px; border-radius: 15px; }
-        #employers-qr-box canvas, #employers-qr-box img { width: clamp(70px, 10vmin, 100px) !important; height: auto !important; margin: 0;}
+        #employers-qr-box canvas, #employers-qr-box img { width: clamp(60px, 8vmin, 90px) !important; height: auto !important; margin: 0;}
 
         /* --- Job Display Container --- */
         .job-container { flex: 1.8; background: white; border-radius: 20px; box-shadow: 0 10px 40px rgba(0,0,0,0.08); padding: 5vmin; display: flex; flex-direction: column; justify-content: center; position: relative; overflow: hidden; }
@@ -303,7 +305,7 @@
             <svg class="bg-icon" style="left: 20%; animation-duration: 13s; color: rgba(255, 202, 40, 0.08);" xmlns="http://www.w3.org/2000/svg" width="160" height="160" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
             <svg class="bg-icon" style="left: 70%; animation-duration: 16s; animation-delay: 3s; color: rgba(255, 255, 255, 0.03);" xmlns="http://www.w3.org/2000/svg" width="120" height="120" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="3" y1="9" x2="21" y2="9"></line><line x1="9" y1="21" x2="9" y2="9"></line></svg>
             
-            <div class="hook-title" style="color: #ffca28; margin-bottom: 2vh;">Top Employers Hiring Locally</div>
+            <div class="employers-title">Top Employers Hiring Locally</div>
             
             <div class="logo-wall-grid" id="logo-wall-container">
                 </div>
@@ -715,7 +717,7 @@
         function renderLoop() {
             jobDisplayCounter++;
             
-            // New Rotation Sequence: Alerts -> Employers -> Stats -> Employers -> loop
+            // Rotation Sequence: Alerts -> Employers -> Stats -> Employers -> loop
             if (currentPhase === 'alerts' && jobDisplayCounter >= alertFrequency) { 
                 showEmailInterstitial();
                 jobDisplayCounter = 0;
@@ -848,13 +850,14 @@
             const logoContainer = document.getElementById('logo-wall-container');
             logoContainer.innerHTML = '';
             
-            const validEmployers = topEmployersData.filter(emp => emp.logo && emp.logo !== '').slice(0, 8);
+            // This strictly requires them to have a logo AND be featured or pinned
+            const validEmployers = topEmployersData.filter(emp => emp.logo && emp.logo !== '' && (emp.isFeatured || emp.hasPinned)).slice(0, 8);
             
             validEmployers.forEach((emp, index) => {
                 const delay = 0.3 + (index * 0.1);
                 const featuredClass = emp.isFeatured ? 'is-featured' : '';
                 
-                // Formatted with sentence case and proper singular/plural grammar
+                // Formatted with sentence case and a clear space
                 const roleText = emp.count === 1 ? 'Open role' : 'Open roles';
 
                 logoContainer.innerHTML += `
@@ -960,7 +963,8 @@
 
             if (applies >= 5) {
                 badges += `<span class="badge badge-warning animate-stagger delay-5">${flameSvg} ${applies} applied</span>`;
-            } else if (applies > 0) {
+            } else if (applies > 0 && !isClosingSoon) {
+                // FIXED: Prevents "Early applicant" from showing if it is also "Closing soon"
                 badges += `<span class="badge badge-warning animate-stagger delay-5">${starSvg} Be an early applicant</span>`;
             } else if (views >= 25) {
                 badges += `<span class="badge animate-stagger delay-5" style="background:#e3f2fd; border-color:#64b5f6; color:#0d47a1;">${eyeSvg} ${views} people viewing</span>`;
