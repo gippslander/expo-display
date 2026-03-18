@@ -1,7 +1,14 @@
 {
   "0": {
     "name": "Default Catch-All (Entire Region)",
-    "towns": ["Gippsland", "Traralgon", "Warragul", "Bairnsdale", "Sale", "Morwell"],
+    "towns": [
+      "Gippsland",
+      "Traralgon",
+      "Warragul",
+      "Bairnsdale",
+      "Sale",
+      "Morwell"
+    ],
     "duration": 15,
     "alertFreq": 2,
     "StatsFreq": 2,
@@ -10,18 +17,40 @@
   },
   "1": {
     "name": "South Gippsland Jobs Expo",
-    "towns": ["Leongatha", "Mirboo North", "Leongatha", "Venus Bay", "Inverloch", "Wonthaggi"],
+    "towns": [
+      "Leongatha",
+      "Foster",
+      "Mirboo North",
+      "Venus Bay",
+      "Inverloch",
+      "Wonthaggi",
+      "Traralgon",
+      "Fish Creek",
+      "Drouin",
+      "Longwarry",
+      "Cape Paterson",
+      "Cowes",
+      "Warragul",
+      "Shady Creek",
+      "Phillip Island"
+    ],
     "duration": 15,
     "alertFreq": 3,
     "StatsFreq": 3,
+    "EmployerFreq": 3,
     "orientation": "landscape"
   },
   "2": {
     "name": "Screen Two - Kiosk Mode",
-    "towns": ["Traralgon", "Morwell", "Moe"],
+    "towns": [
+      "Traralgon",
+      "Morwell",
+      "Moe"
+    ],
     "duration": 12,
     "alertFreq": 3,
     "StatsFreq": 3,
+    "EmployerFreq": 3,
     "orientation": "portrait"
   }
 }
