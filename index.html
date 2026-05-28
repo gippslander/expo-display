@@ -344,7 +344,7 @@
     </div>
 
     <script>
-        const BASE_API_URL = 'https://gippsland-jobs-proxy.vercel.app/api/jobs?towns=';
+        const BASE_API_URL = 'https://gippslander.com.au/get-jobs';
         
         let selectedTowns = [];
         let displayDuration = 15000;
@@ -582,22 +582,49 @@
             }, 30 * 60 * 1000);
         }
 
+        function normalizeJob(j) {
+            return {
+                ...j,
+                description: j.excerpt || '',
+                created_at: j.posted_at,
+                final_status: 'active',
+                pin_to_top: j.status === 'BOOSTED'
+            };
+        }
+
         async function fetchJobs(isSilent = false) {
             if (!isSilent) document.getElementById('job-display').innerHTML = '<div class="loader">Fetching jobs...</div>';
             try {
-                const response = await fetch(BASE_API_URL + selectedTowns.map(t => encodeURIComponent(t)).join(','));
-                const data = await response.json();
-                processJobsForRotation(data);
+                const towns = selectedTowns.length > 0 ? selectedTowns : ['Gippsland'];
+                const responses = await Promise.all(towns.map(t => {
+                    const url = t.toLowerCase() === 'gippsland'
+                        ? BASE_API_URL
+                        : `${BASE_API_URL}?loc=${encodeURIComponent(t)}`;
+                    return fetch(url).then(r => r.ok ? r.json() : []).catch(() => []);
+                }));
+
+                const seen = new Set();
+                const merged = [];
+                responses.flat().forEach(j => {
+                    if (j && j.id && !seen.has(j.id)) {
+                        seen.add(j.id);
+                        merged.push(normalizeJob(j));
+                    }
+                });
+
+                if (merged.length === 0) throw new Error('No jobs returned');
+
+                processJobsForRotation(merged);
                 setLiveStatus(true);
                 if (!isSilent) startPresentation();
             } catch (error) {
                 const cached = localStorage.getItem('gipps_cached_jobs');
-                if (cached) { 
+                if (cached) {
                     const parsed = JSON.parse(cached);
-                    calculateTotalViewsAndStats(parsed); 
-                    jobs = parsed; 
-                    setLiveStatus(false); 
-                    if (!isSilent) startPresentation(); 
+                    calculateTotalViewsAndStats(parsed);
+                    jobs = parsed;
+                    setLiveStatus(false);
+                    if (!isSilent) startPresentation();
                 }
             }
         }
