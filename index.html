@@ -76,11 +76,6 @@
         /* --- EXPO CLOCK --- */
         .expo-clock { font-size: 1.4rem; font-weight: 800; color: var(--text-main); display: flex; align-items: center; gap: 8px; padding-right: 25px; border-right: 2px solid #eee; font-variant-numeric: tabular-nums; letter-spacing: 0.5px; }
 
-        /* --- LIVE VIEW COUNTER --- */
-        .view-counter { display: flex; align-items: center; gap: 8px; background: #f8f9fa; padding: 8px 18px; border-radius: 50px; border: 1.5px solid #e0e0e0; font-weight: 700; color: #0d47a1; font-size: 1.2rem; box-shadow: inset 0 2px 4px rgba(0,0,0,0.02); }
-        .view-counter svg { width: 22px; height: 22px; }
-        .counter-number { font-variant-numeric: tabular-nums; letter-spacing: 0.5px; }
-
         .live-indicator { display: flex; align-items: center; gap: 10px; font-weight: 900; font-size: 1.5rem; letter-spacing: 1px; transition: color 0.3s ease; }
         .status-live { color: var(--live-color); }
         .status-offline { color: var(--offline-color); }
@@ -99,7 +94,6 @@
         .interstitial-panel { display: none; position: absolute; top: 30px; left: 40px; right: 40px; bottom: 30px; border-radius: 20px; color: white; flex-direction: column; align-items: center; justify-content: center; text-align: center; z-index: 20; box-shadow: 0 20px 60px rgba(0,0,0,0.2); overflow: hidden; padding: 20px; }
         
         #interstitial-alerts { background: linear-gradient(45deg, #1b5e20, #4CAF50, #0d47a1, #4CAF50); background-size: 300% 300%; animation: gradientShift 10s ease infinite; }
-        #interstitial-stats { background: linear-gradient(135deg, #0d47a1, #1565c0, #283593, #000000); background-size: 300% 300%; animation: gradientShift 15s ease infinite; }
         #interstitial-employers { background: linear-gradient(135deg, #121212, #2d3436, #1a1a1a, #000000); background-size: 300% 300%; animation: gradientShift 15s ease infinite; }
 
         @keyframes gradientShift { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
@@ -122,27 +116,6 @@
         .hook-qr-box .qr-fallback-text { font-size: clamp(0.9rem, 1.8vmin, 1.3rem); margin-top: 5px; color: var(--text-muted); font-weight: 600;}
 
         @keyframes popIn { 0% { transform: scale(0.8) translateY(30px); opacity: 0; } 100% { transform: scale(1) translateY(0); opacity: 1; } }
-
-        /* --- STATS SCREEN SPECIFICS --- */
-        .stats-grid { display: flex; width: 90%; max-width: 1400px; gap: 4vmin; margin-top: 2vh; animation: popIn 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) backwards; animation-delay: 0.5s;}
-        .stat-card { background: rgba(255,255,255,0.1); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.2); border-radius: 20px; padding: 3vmin; flex: 1; display: flex; flex-direction: column; align-items: flex-start; text-align: left; box-shadow: 0 10px 30px rgba(0,0,0,0.2);}
-        .stat-card-title { font-size: clamp(1.2rem, 2vmin, 1.6rem); font-weight: 700; color: #bbdefb; margin-bottom: 2vh; display: flex; align-items: center; gap: 10px; text-transform: uppercase; letter-spacing: 1px;}
-        .stat-card-title svg { width: 24px; height: 24px; color: #ffca28; }
-        
-        /* Demand Meter */
-        .demand-row { width: 100%; margin-bottom: 1.5vh; }
-        .demand-label { display: flex; justify-content: space-between; font-size: clamp(1rem, 1.5vmin, 1.2rem); font-weight: 600; margin-bottom: 5px; }
-        .demand-bar-bg { width: 100%; height: 12px; background: rgba(0,0,0,0.3); border-radius: 10px; overflow: hidden; position: relative;}
-        .demand-bar-fill { height: 100%; background: linear-gradient(90deg, #ffca28, #ff9800); width: 0%; border-radius: 10px; transition: width 2s cubic-bezier(0.25, 1, 0.5, 1); box-shadow: 0 0 10px rgba(255, 202, 40, 0.5);}
-        
-        /* Top Employers */
-        .employer-list { display: flex; flex-wrap: wrap; gap: 10px; }
-        .employer-pill { background: white; color: var(--text-main); padding: 8px 15px; border-radius: 30px; font-weight: 800; font-size: clamp(0.9rem, 1.4vmin, 1.1rem); display: flex; align-items: center; gap: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.15);}
-        .employer-pill img { width: 24px; height: 24px; border-radius: 50%; object-fit: cover;}
-
-        /* Giant Live Number */
-        .live-stat-giant { font-size: clamp(4rem, 10vmin, 8rem); font-weight: 900; line-height: 1; color: white; margin-bottom: 1vh; font-variant-numeric: tabular-nums; display: flex; align-items: center; gap: 15px;}
-        .live-stat-giant svg { width: clamp(40px, 8vmin, 80px); height: auto; color: #ff3b30; animation: pulse-live 1.5s infinite; border-radius: 50%;}
 
         /* --- EMPLOYER WALL SCREEN --- */
         .employers-title { font-size: clamp(2.5rem, 6vh, 4.5rem); font-weight: 900; margin-bottom: 1vh; text-align: center; line-height: 1.1; color: #ffca28; text-shadow: 2px 4px 10px rgba(0,0,0,0.3); animation: popIn 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) backwards; animation-delay: 0.3s; }
@@ -185,7 +158,6 @@
         .badge svg { width: clamp(20px, 2.5vmin, 26px); height: auto; }
         
         .badge-urgent { background-color: #ff3b30 !important; color: #ffffff !important; border-color: #ff3b30 !important; box-shadow: 0 4px 15px rgba(255, 59, 48, 0.4); animation: pulse-badge 2s infinite; }
-        .badge-warning { background-color: #ff9800 !important; color: #ffffff !important; border-color: #ff9800 !important; box-shadow: 0 4px 15px rgba(255, 152, 0, 0.4); }
         @keyframes pulse-badge { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
 
         .job-content-split { display: flex; gap: 4vmin; align-items: stretch; border-top: 2px dashed #eee; padding-top: 3vh;}
@@ -228,7 +200,6 @@
         body.portrait .job-content-split { flex-direction: column; align-items: flex-start; gap: 15px; }
         body.portrait .job-specific-qr { flex-direction: row; gap: 15px; width: 100%; justify-content: flex-start; padding: 10px;}
         body.portrait .job-specific-qr canvas, body.portrait .job-specific-qr img { width: 80px !important; height: 80px !important; margin-bottom: 0 !important;}
-        body.portrait .stats-grid { flex-direction: column; }
 
     </style>
 </head>
@@ -238,12 +209,7 @@
         <img src="https://d3535lqr6sqxto.cloudfront.net/logos/rEkuQybTnVw95OUPNTLLVxtGB7t4BbAVgbRJTndj.png" alt="Gippslander Logo" class="header-logo">
         <div class="header-right">
             <div class="expo-clock" id="live-clock">12:00 AM</div>
-            
-            <div class="view-counter" id="view-counter-box" style="display: none;">
-                <svg stroke="currentColor" fill="none" stroke-width="2.5" viewBox="0 0 24 24"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
-                <span class="counter-number" id="view-count-number">0</span> Active job views
-            </div>
-            
+
             <div class="live-indicator status-live" id="status-badge"><span class="live-dot" id="status-dot"></span><span id="status-text">Live</span></div>
         </div>
     </header>
@@ -268,40 +234,6 @@
                 </div>
             </div>
             <div class="progress-bar-container"><div class="progress-bar" id="progress-alerts"></div></div>
-        </div>
-
-        <div id="interstitial-stats" class="interstitial-panel">
-            <svg class="bg-icon" style="left: 15%; animation-duration: 11s;" xmlns="http://www.w3.org/2000/svg" width="120" height="120" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
-            <svg class="bg-icon" style="left: 75%; animation-duration: 14s; animation-delay: 1s;" xmlns="http://www.w3.org/2000/svg" width="140" height="140" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.2 8.4c.5.38.8.97.8 1.6v10a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V10a2 2 0 0 1 .8-1.6l8-6a2 2 0 0 1 2.4 0l8 6Z"/><path d="m22 10-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 10"/></svg>
-            
-            <div class="hook-content">
-                <div class="hook-kicker">Live Job Market Insights</div>
-                
-                <div class="live-stat-giant" id="stats-applies-counter">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
-                    <span id="giant-applies-num">0</span>
-                </div>
-                <div class="hook-sub" style="margin-bottom: 1vh; font-size: clamp(1.4rem, 3vmin, 2rem); font-weight: 700;">Job applications sent recently</div>
-
-                <div class="stats-grid">
-                    <div class="stat-card">
-                        <div class="stat-card-title">
-                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
-                            Highest Demand Areas
-                        </div>
-                        <div id="demand-meters-container" style="width: 100%;"></div>
-                    </div>
-
-                    <div class="stat-card">
-                        <div class="stat-card-title">
-                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
-                            Top Employers Hiring
-                        </div>
-                        <div class="employer-list" id="top-employers-container"></div>
-                    </div>
-                </div>
-            </div>
-            <div class="progress-bar-container"><div class="progress-bar" id="progress-stats"></div></div>
         </div>
 
         <div id="interstitial-employers" class="interstitial-panel">
@@ -350,24 +282,16 @@
         let displayDuration = 15000;
         
         // --- ROTATION LOGIC VARIABLES ---
-        let alertFrequency = 5; 
-        let statsFrequency = 5;
-        let employerFrequency = 5; 
-        let jobDisplayCounter = 0; 
-        let currentPhase = 'alerts'; // Sequence: alerts -> employers_1 -> stats -> employers_2 -> alerts...
-        let sidebarState = 0; 
-        
+        let alertFrequency = 5;
+        let employerFrequency = 5;
+        let jobDisplayCounter = 0;
+        let currentPhase = 'alerts'; // Sequence: alerts -> employers -> alerts...
+        let sidebarState = 0;
+
         let jobs = [], currentIndex = 0;
         let slideTimer, backgroundRefreshTimer, townCycleInterval, configPollTimer;
-        let currentConfigName = 'Default_Screen'; 
+        let currentConfigName = 'Default_Screen';
 
-        // --- STATS DATA ---
-        let currentViewCount = 0;
-        let viewTickTimer;
-        let realTotalApplies = 0;
-        let liveAppliesDisplay = 0;
-        let appliesTickTimer;
-        let locationDemandData = [];
         let topEmployersData = [];
 
         // Helper function to shuffle arrays for random selection
@@ -534,9 +458,8 @@
             selectedTowns = conf.towns || ['Gippsland'];
             displayDuration = parseInt(conf.duration || 15) * 1000;
             alertFrequency = parseInt(conf.alertFreq || 5);
-            statsFrequency = parseInt(conf.StatsFreq || 5); 
-            employerFrequency = parseInt(conf.EmployerFreq || 5); 
-            currentConfigName = conf.name || `Screen_${configId}`; 
+            employerFrequency = parseInt(conf.EmployerFreq || 5);
+            currentConfigName = conf.name || `Screen_${configId}`;
             
             if (conf.orientation === 'portrait') {
                 document.body.classList.add('portrait');
@@ -621,7 +544,7 @@
                 const cached = localStorage.getItem('gipps_cached_jobs');
                 if (cached) {
                     const parsed = JSON.parse(cached);
-                    calculateTotalViewsAndStats(parsed);
+                    calculateTopEmployers(parsed);
                     jobs = parsed;
                     setLiveStatus(false);
                     if (!isSilent) startPresentation();
@@ -629,105 +552,41 @@
             }
         }
 
-        function calculateTotalViewsAndStats(activeJobs) {
+        function calculateTopEmployers(activeJobs) {
+            topEmployersData = [];
             if (!activeJobs || activeJobs.length === 0) return;
 
-            let realTotalViews = 0;
-            realTotalApplies = 0;
-            
-            let locMap = {};
             let empMap = {};
-
             activeJobs.forEach(job => {
-                const views = job.statistics?.views_count || 0;
-                const applies = job.statistics?.applies_count || 0;
-                
-                realTotalViews += views;
-                realTotalApplies += applies;
-
-                // Group by location
-                let loc = (job.location || 'Gippsland').replace(/,\s*Victoria,\s*Australia/i, '').trim();
-                if(!locMap[loc]) locMap[loc] = 0;
-                locMap[loc] += views;
-
-                // Group Employers with Featured/Pinned tracking
-                if (job.employer && job.employer.name) {
-                    let empName = job.employer.name;
-                    
-                    if(!empMap[empName]) {
-                        empMap[empName] = { 
-                            count: 0, 
-                            logo: job.employer.logo,
-                            isFeatured: false,
-                            hasPinned: false
-                        };
-                    }
-                    
-                    empMap[empName].count += 1;
-                    
-                    // IF ANY ACTIVE JOB FOR THIS EMPLOYER IS FEATURED/PINNED, FLAG THE EMPLOYER
-                    if (job.pin_to_top === true) empMap[empName].hasPinned = true;
-                    if (job.featured === true || (job.employer && job.employer.featured === true)) {
-                        empMap[empName].isFeatured = true;
-                    }
+                if (!job.employer || !job.employer.name) return;
+                const empName = job.employer.name;
+                if (!empMap[empName]) {
+                    empMap[empName] = {
+                        count: 0,
+                        logo: job.employer.logo,
+                        isFeatured: false,
+                        hasPinned: false
+                    };
+                }
+                empMap[empName].count += 1;
+                if (job.pin_to_top === true) empMap[empName].hasPinned = true;
+                if (job.featured === true || job.employer.featured === true) {
+                    empMap[empName].isFeatured = true;
                 }
             });
 
-            // Update Views Counter
-            if (realTotalViews > currentViewCount) {
-                currentViewCount = realTotalViews;
-            }
-            document.getElementById('view-counter-box').style.display = 'flex';
-            document.getElementById('view-count-number').innerText = currentViewCount.toLocaleString();
-            clearTimeout(viewTickTimer);
-            tickViewCounter();
-
-            // Set up Applies Counter
-            if (realTotalApplies > liveAppliesDisplay) {
-                liveAppliesDisplay = realTotalApplies;
-            }
-            clearTimeout(appliesTickTimer);
-            tickAppliesCounter();
-
-            // Sort Locations for Demand Meter
-            locationDemandData = Object.keys(locMap)
-                .map(k => ({ name: k, views: locMap[k] }))
-                .sort((a, b) => b.views - a.views)
-                .slice(0, 4); 
-
-            // Base Employer Generation 
-            topEmployersData = Object.keys(empMap)
-                .map(k => ({ 
-                    name: k, 
-                    count: empMap[k].count, 
-                    logo: empMap[k].logo,
-                    isFeatured: empMap[k].isFeatured,
-                    hasPinned: empMap[k].hasPinned
-                }));
-        }
-
-        function tickViewCounter() {
-            const nextTick = Math.floor(Math.random() * 5000) + 3000;
-            viewTickTimer = setTimeout(() => {
-                currentViewCount += Math.floor(Math.random() * 3) + 1;
-                document.getElementById('view-count-number').innerText = currentViewCount.toLocaleString();
-                tickViewCounter();
-            }, nextTick);
-        }
-
-        function tickAppliesCounter() {
-            const nextTick = Math.floor(Math.random() * 15000) + 10000;
-            appliesTickTimer = setTimeout(() => {
-                liveAppliesDisplay += Math.floor(Math.random() * 2) + 1;
-                const appliesEl = document.getElementById('giant-applies-num');
-                if (appliesEl) appliesEl.innerText = liveAppliesDisplay.toLocaleString();
-                tickAppliesCounter();
-            }, nextTick);
+            topEmployersData = Object.keys(empMap).map(k => ({
+                name: k,
+                count: empMap[k].count,
+                logo: empMap[k].logo,
+                isFeatured: empMap[k].isFeatured,
+                hasPinned: empMap[k].hasPinned
+            }));
         }
 
         function processJobsForRotation(data) {
             const active = data.filter(j => j.title && j.final_status === 'active');
-            calculateTotalViewsAndStats(active);
+            calculateTopEmployers(active);
 
             let weighted = [];
             active.forEach(j => { weighted.push(j); if (j.pin_to_top) { weighted.push(j); weighted.push(j); } else if (j.featured) weighted.push(j); });
@@ -753,24 +612,16 @@
 
         function renderLoop() {
             jobDisplayCounter++;
-            
-            // Explicit requested sequence: Alerts -> Logos -> Stats -> Logos -> loop
-            if (currentPhase === 'alerts' && jobDisplayCounter >= alertFrequency) { 
+
+            // Sequence: alerts -> employers -> alerts -> ...
+            if (currentPhase === 'alerts' && jobDisplayCounter >= alertFrequency) {
                 showEmailInterstitial();
                 jobDisplayCounter = 0;
-                currentPhase = 'employers_1';
-            } else if (currentPhase === 'employers_1' && jobDisplayCounter >= employerFrequency) {
+                currentPhase = 'employers';
+            } else if (currentPhase === 'employers' && jobDisplayCounter >= employerFrequency) {
                 showEmployersInterstitial();
                 jobDisplayCounter = 0;
-                currentPhase = 'stats'; 
-            } else if (currentPhase === 'stats' && jobDisplayCounter >= statsFrequency) {
-                showStatsInterstitial();
-                jobDisplayCounter = 0;
-                currentPhase = 'employers_2';
-            } else if (currentPhase === 'employers_2' && jobDisplayCounter >= employerFrequency) {
-                showEmployersInterstitial();
-                jobDisplayCounter = 0;
-                currentPhase = 'alerts'; 
+                currentPhase = 'alerts';
             } else {
                 renderJob();
             }
@@ -825,67 +676,11 @@
         function showEmailInterstitial() {
             document.getElementById('main-job-container').style.display = 'none';
             document.getElementById('main-sidebar').style.display = 'none';
-            document.getElementById('interstitial-stats').style.display = 'none';
             document.getElementById('interstitial-employers').style.display = 'none';
             document.getElementById('interstitial-alerts').style.display = 'flex';
-            
-            startTownCycle(); 
+
+            startTownCycle();
             triggerProgressBar('progress-alerts');
-        }
-
-        function showStatsInterstitial() {
-            clearInterval(townCycleInterval);
-            document.getElementById('main-job-container').style.display = 'none';
-            document.getElementById('main-sidebar').style.display = 'none';
-            document.getElementById('interstitial-alerts').style.display = 'none';
-            document.getElementById('interstitial-employers').style.display = 'none';
-            document.getElementById('interstitial-stats').style.display = 'flex';
-
-            const appliesEl = document.getElementById('giant-applies-num');
-            animateValue(appliesEl, 0, liveAppliesDisplay, 2000);
-
-            const metersContainer = document.getElementById('demand-meters-container');
-            metersContainer.innerHTML = ''; 
-            
-            const maxViews = locationDemandData.length > 0 ? locationDemandData[0].views : 1;
-            
-            locationDemandData.forEach((loc, index) => {
-                let widthPct = Math.max((loc.views / maxViews) * 100, 10);
-                metersContainer.innerHTML += `
-                    <div class="demand-row">
-                        <div class="demand-label"><span>${loc.name}</span> <span style="color:#ffca28;">High Demand</span></div>
-                        <div class="demand-bar-bg">
-                            <div class="demand-bar-fill" id="meter-${index}" style="width: 0%;"></div>
-                        </div>
-                    </div>
-                `;
-                setTimeout(() => {
-                    const bar = document.getElementById(`meter-${index}`);
-                    if(bar) bar.style.width = `${widthPct}%`;
-                }, 300 + (index * 200));
-            });
-
-            const employersContainer = document.getElementById('top-employers-container');
-            employersContainer.innerHTML = '';
-            
-            // Ensure Stats screen ALSO randomizes the top employers using priority
-            let statsFeaturedEmps = topEmployersData.filter(emp => emp.isFeatured);
-            let statsPinnedEmps = topEmployersData.filter(emp => emp.hasPinned && !emp.isFeatured);
-            let statsOtherEmps = topEmployersData.filter(emp => !emp.isFeatured && !emp.hasPinned);
-            
-            shuffleArray(statsFeaturedEmps);
-            shuffleArray(statsPinnedEmps);
-            shuffleArray(statsOtherEmps);
-            
-            const validStatsEmployers = [...statsFeaturedEmps, ...statsPinnedEmps, ...statsOtherEmps].slice(0, 5);
-            
-            validStatsEmployers.forEach(emp => {
-                const imgTag = emp.logo ? `<img src="${emp.logo}" onerror="this.style.display='none'">` : '';
-                const starIcon = emp.isFeatured ? `<svg style="width:16px;height:16px;color:#ffca28;margin-left:4px;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>` : '';
-                employersContainer.innerHTML += `<div class="employer-pill">${imgTag} ${emp.name} ${starIcon}</div>`;
-            });
-
-            triggerProgressBar('progress-stats');
         }
 
         function showEmployersInterstitial() {
@@ -893,7 +688,6 @@
             document.getElementById('main-job-container').style.display = 'none';
             document.getElementById('main-sidebar').style.display = 'none';
             document.getElementById('interstitial-alerts').style.display = 'none';
-            document.getElementById('interstitial-stats').style.display = 'none';
             document.getElementById('interstitial-employers').style.display = 'flex';
 
             const logoContainer = document.getElementById('logo-wall-container');
@@ -939,28 +733,11 @@
             triggerProgressBar('progress-employers');
         }
 
-        function animateValue(obj, start, end, duration) {
-            let startTimestamp = null;
-            const step = (timestamp) => {
-                if (!startTimestamp) startTimestamp = timestamp;
-                const progress = Math.min((timestamp - startTimestamp) / duration, 1);
-                const easeProgress = 1 - Math.pow(1 - progress, 3);
-                obj.innerHTML = Math.floor(easeProgress * (end - start) + start).toLocaleString();
-                if (progress < 1) {
-                    window.requestAnimationFrame(step);
-                } else {
-                    obj.innerHTML = end.toLocaleString(); 
-                }
-            };
-            window.requestAnimationFrame(step);
-        }
-
         function renderJob() {
             rotateSidebarContent();
 
-            clearInterval(townCycleInterval); 
+            clearInterval(townCycleInterval);
             document.getElementById('interstitial-alerts').style.display = 'none';
-            document.getElementById('interstitial-stats').style.display = 'none';
             document.getElementById('interstitial-employers').style.display = 'none';
             document.getElementById('main-job-container').style.display = 'flex';
             document.getElementById('main-sidebar').style.display = 'flex';
@@ -1000,8 +777,6 @@
             if (!isClosingSoon && daysOld > 20) isClosingSoon = true;
             
             const alertCircleSvg = `<svg stroke="currentColor" fill="none" stroke-width="2.5" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>`;
-            const flameSvg = `<svg stroke="currentColor" fill="none" stroke-width="2.5" viewBox="0 0 24 24"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></svg>`;
-            const eyeSvg = `<svg stroke="currentColor" fill="none" stroke-width="2.5" viewBox="0 0 24 24"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>`;
             const pinSvg = `<svg stroke="currentColor" fill="none" stroke-width="2.5" viewBox="0 0 24 24"><line x1="12" y1="17" x2="12" y2="22"/><path d="M5 17h14v-1.59a2 2 0 0 0-.59-1.42l-1.83-1.83c-.38-.38-.59-.88-.59-1.42V6a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v4.74c0 .54-.21 1.04-.59 1.42l-1.83 1.83A2 2 0 0 0 5 15.41Z"/></svg>`;
             const starSvg = `<svg stroke="currentColor" fill="none" stroke-width="2.5" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>`;
             const clockSvg = `<svg stroke="currentColor" fill="none" stroke-width="2.5" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>`;
@@ -1009,7 +784,7 @@
             const qrScanSvg = `<svg class="animated-arrow" stroke="currentColor" fill="none" stroke-width="3" viewBox="0 0 24 24"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>`;
 
             let badges = '';
-            
+
             if (job.pin_to_top) {
                 badges += `<span class="badge animate-stagger delay-4" style="background:#fff8e1; border-color:#ffca28; color:#f57f17;">${pinSvg} Premium</span>`;
             } else if (job.featured) {
@@ -1020,19 +795,6 @@
                 badges += `<span class="badge badge-urgent animate-stagger delay-5">${alertCircleSvg} Closing soon</span>`;
             } else if (isNewlyListed) {
                 badges += `<span class="badge animate-stagger delay-5" style="background:#e8f5e9; border-color:#81c784; color:#1b5e20;">${clockSvg} Just listed</span>`;
-            }
-
-            const applies = job.statistics?.applies_count || 0;
-            const views = job.statistics?.views_count || 0;
-
-            if (applies >= 5) {
-                badges += `<span class="badge badge-warning animate-stagger delay-5">${flameSvg} ${applies} applied</span>`;
-            } else if (applies > 0 && !isClosingSoon) {
-                badges += `<span class="badge badge-warning animate-stagger delay-5">${starSvg} Be an early applicant</span>`;
-            } else if (views >= 25) {
-                badges += `<span class="badge animate-stagger delay-5" style="background:#e3f2fd; border-color:#64b5f6; color:#0d47a1;">${eyeSvg} ${views} people viewing</span>`;
-            } else if (views >= 10) {
-                badges += `<span class="badge animate-stagger delay-5" style="background:#e3f2fd; border-color:#64b5f6; color:#0d47a1;">${eyeSvg} Popular</span>`;
             }
 
             const displayCategory = job.category?.name || 'General';
